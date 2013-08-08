@@ -1,11 +1,12 @@
 package tests;
 
 import static org.junit.Assert.*;
-import model.Statistics;
+import maths.Statistics;
 
 import org.junit.Test;
 
-import Enums.ICBound;
+import enums.ICBound;
+
 
 public class StatisticsTest {
 	
@@ -143,9 +144,9 @@ public class StatisticsTest {
 		
 		Double dist1 = statistics.estimateAverage() - statistics.ConfidenceIntervalDistance(0.98, ICBound.Lower);
 		Double dist2 = statistics.ConfidenceIntervalDistance(0.98, ICBound.Upper) - statistics.estimateAverage();
-		
 		assertEquals(dist1, dist2, 0.0001);
 	}
+	
 }
 
 

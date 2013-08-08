@@ -1,13 +1,13 @@
-package model;
+package maths;
 
+import enums.ICBound;
 import umontreal.iro.lecuyer.probdist.StudentDist;
-import Enums.ICBound;
 
 /**
  * Calcula estatísticas básicas, dado um conjunto de amostras.
  * Estima média, variância, desvio padrão e IC.
  */
-public class Statistics {
+public final class Statistics {
 	
 	/**
 	 * É possível calcular a média incrementalmente. A cada amostra adicionada,
