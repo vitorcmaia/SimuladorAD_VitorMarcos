@@ -13,10 +13,13 @@ public class Rx {
 	 * Sequências de pacotes que chegaram fora de ordem.
 	 * Se não estiver vazio, significa que algum pacote foi perdido.
 	 */
-	private ArrayList<ArrayList<Long>> receivedSequences = new ArrayList<ArrayList<Long>>();
+	private ArrayList<ArrayList<Long>> sequencesReceivedOutOfOrder = new ArrayList<ArrayList<Long>>();
 	
-	private ArrayList<ArrayList<Long>> allReceivedSequences() {
-		return receivedSequences;
+	/**
+	 * Se esta matriz não for vazia, significa que pacotes não chegaram, ou chegaram fora de ordem.
+	 */
+	private ArrayList<ArrayList<Long>> getSequencesReceivedOutOfOrder() {
+		return sequencesReceivedOutOfOrder;
 	}
 	
 	public Long getNextExpectedByte() {
@@ -34,26 +37,19 @@ public class Rx {
 	 */
 	public SACK receivePacket(Pack pack) {
 		SACK sack = null;
-		if(pack.getStartingByte().compareTo(nextExpectedByte) < 0) {
-			sack = new SACK(pack.getDestination(), nextExpectedByte, allReceivedSequences());
-		} else if(pack.getStartingByte().equals(nextExpectedByte)) {
+		if(pack.getStartingByte().compareTo(nextExpectedByte) < 0);
+			// Neste caso apenas retorna o Sack como já está...
+		else if(pack.getStartingByte().equals(nextExpectedByte)) {
 			update(pack);
-			ArrayList<Long> seq = receivedSequences.get(0);
-			
-			if(seq.size() >= 2) {
-				nextExpectedByte = seq.get(1);
-			}
-			
-			this.receivedSequences.remove(0);
-			
-			sack = new SACK(pack.getDestination(), nextExpectedByte, allReceivedSequences());
+			ArrayList<Long> seq = sequencesReceivedOutOfOrder.get(0);
+			sequencesReceivedOutOfOrder.remove(0);
+			if(seq.size() >= 2) nextExpectedByte = seq.get(1);
 		} else {
 			update(pack);
-			sack = new SACK(pack.getDestination(), nextExpectedByte, allReceivedSequences());
 		}
 		
+		sack = new SACK(pack.getDestination(), nextExpectedByte, getSequencesReceivedOutOfOrder());
 		sack.setOriginalPackSendingTime(pack.getStartSendingTime());
-		
 		return sack;
 	}
 	
@@ -61,25 +57,19 @@ public class Rx {
 		ArrayList<Long> bounds = new ArrayList<Long>();
 		bounds.add(p.getStartingByte());
 		bounds.add(p.getEndingByte() + 1);
-		if (receivedSequences.size() == 0) {
-			receivedSequences.add(bounds);
+		if (sequencesReceivedOutOfOrder.size() == 0) {
+			sequencesReceivedOutOfOrder.add(bounds);
 			return;
 		} else {
-			if (receivedSequences.get(0).get(0).compareTo(p.getEndingByte()) > 0) {
-				if (receivedSequences.get(0).get(0).equals(p.getEndingByte() + 1)) {
-					receivedSequences.get(0).set(0, p.getStartingByte());
-					return;
-				} else {
-					receivedSequences.add(0, bounds);
-					return;
-				}
+			if (sequencesReceivedOutOfOrder.get(0).get(0).compareTo(p.getEndingByte()) > 0) {
+				if (sequencesReceivedOutOfOrder.get(0).get(0).equals(p.getEndingByte() + 1)) {
+					sequencesReceivedOutOfOrder.get(0).set(0, p.getStartingByte());
+				} else sequencesReceivedOutOfOrder.add(0, bounds);
+				return;
 			}
-			for (int i = receivedSequences.size() - 1; i >= 0; i--) {
-				if (sequenceContainsPack(p, i)) {
-					return;
-				}
-
-				if (receivedSequences.get(i).get(1) <= p.getStartingByte()) {
+			for (int i = sequencesReceivedOutOfOrder.size() - 1; i >= 0; i--) {
+				if (sequenceContainsPack(p, i)) return;
+				if (sequencesReceivedOutOfOrder.get(i).get(1) <= p.getStartingByte()) {
 					include(p, i);
 					return;
 				}
@@ -88,32 +78,32 @@ public class Rx {
 	}
 	
 	private void include(Pack p, int i) {
-		if (receivedSequences.get(i).get(1).equals(p.getStartingByte())) {
-			receivedSequences.get(i).set(1, p.getEndingByte() + 1);
+		if (sequencesReceivedOutOfOrder.get(i).get(1).equals(p.getStartingByte())) {
+			sequencesReceivedOutOfOrder.get(i).set(1, p.getEndingByte() + 1);
 
-			if (i < receivedSequences.size() - 1) {
-				if (receivedSequences.get(i).get(1).equals(receivedSequences.get(i + 1).get(0))) {
-					receivedSequences.get(i).set(1, receivedSequences.get(i + 1).get(1));
-					receivedSequences.remove(i + 1);
+			if (i < sequencesReceivedOutOfOrder.size() - 1) {
+				if (sequencesReceivedOutOfOrder.get(i).get(1).equals(sequencesReceivedOutOfOrder.get(i + 1).get(0))) {
+					sequencesReceivedOutOfOrder.get(i).set(1, sequencesReceivedOutOfOrder.get(i + 1).get(1));
+					sequencesReceivedOutOfOrder.remove(i + 1);
 				}
 			}
 		} else {
-			if (i < receivedSequences.size() - 1
-					&& receivedSequences.get(i + 1).get(0).equals(p.getEndingByte() + 1)) {
-				receivedSequences.get(i + 1).set(0, p.getStartingByte());
+			if (i < sequencesReceivedOutOfOrder.size() - 1
+					&& sequencesReceivedOutOfOrder.get(i + 1).get(0).equals(p.getEndingByte() + 1)) {
+				sequencesReceivedOutOfOrder.get(i + 1).set(0, p.getStartingByte());
 			} else {
 				ArrayList<Long> seq = new ArrayList<Long>();
 				seq.add(p.getStartingByte());
 				seq.add(p.getEndingByte() + 1);
 				
-				receivedSequences.add(i + 1, seq);
+				sequencesReceivedOutOfOrder.add(i + 1, seq);
 			}
 		}
 	}
 	
 	private boolean sequenceContainsPack(Pack p, int seq) {
-		if(receivedSequences.get(seq).get(0) <= p.getStartingByte()
-				&& receivedSequences.get(seq).get(1) > p.getEndingByte()) {
+		if(sequencesReceivedOutOfOrder.get(seq).get(0) <= p.getStartingByte()
+				&& sequencesReceivedOutOfOrder.get(seq).get(1) > p.getEndingByte()) {
 			return true;
 		} else {
 			return false;

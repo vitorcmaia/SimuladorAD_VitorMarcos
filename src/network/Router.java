@@ -54,18 +54,15 @@ public final class Router {
 	 * @throws RuntimeException Se a listagem de receptores for nula.
 	 */
 	public SACK sendPackToRx(Double removalTime) throws RuntimeException {
-		// Se estiver nulo, significa que o construtor de System está incorreto.
+		// Se estiver nulo, significa que o construtor de Sys está incorreto.
 		if(Rxs == null)
 			throw new RuntimeException();
 		
-		Pack p = getBuffer().pop();
-		
-		SACK sack = null;
-		if(p.getType() != PackType.Congestion) { // Tráfego de fundo se perde.
-			int dest = p.getDestination();
-			sack = Rxs.get(dest).receivePacket(p);
-		}
-		return sack;
+		Pack nextPack = getBuffer().pop();		
+		if(nextPack.getType() != PackType.Congestion) // Tráfego de fundo se perde.
+			return Rxs.get(nextPack.getDestination()).receivePacket(nextPack);
+		else
+			return null;
 	}
 	
 	private Boolean receivePacketRED(Pack pack, Double arrivalTime) {
@@ -81,7 +78,7 @@ public final class Router {
 	 * @return true se não foi descartado.
 	 */
 	private Boolean receivePacketFIFO(Pack packet) {
-		if(getBuffer().quantityOfRemainingPackets() < getBuffer().getBufferSize()) {
+		if(getBuffer().quantityOfRemainingPackets().compareTo(getBuffer().getBufferSize()) < 0) {
 			getBuffer().addPacket(packet);
 			return true;
 		}
