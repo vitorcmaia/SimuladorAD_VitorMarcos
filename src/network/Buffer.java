@@ -14,14 +14,14 @@ public final class Buffer {
 	private ArrayList<Pack> queue = new ArrayList<Pack>();
 	
 	/**
-	 * Tamanho do buffer, editável através da classe de propriedades.
+	 * Tamanho do buffer, editÃ¡vel atravÃ©s da classe de propriedades.
 	 */
 	private Integer bufferSize = SimulationProperties.getBufferSize();
 	
 	/**
 	 * Adiciona um pacote ao buffer. Adiciona infinitamente,
 	 * sem considerar o tamanho do buffer. Este descarte deve ser feito
-	 * pelo método de tratamento de política.
+	 * pelo mÃ©todo de tratamento de polÃ­tica.
 	 * @param packet O novo pacote.
 	 */
 	public void addPacket(Pack packet) {
@@ -29,7 +29,7 @@ public final class Buffer {
 	}
 	
 	/**
-	 * Retorna e remove o próximo da fila de pacotes.
+	 * Retorna e remove o prÃ³ximo da fila de pacotes.
 	 */
 	public Pack pop() {
 		if(queue.isEmpty()) return null;
@@ -41,7 +41,7 @@ public final class Buffer {
 	
 	/**
 	 * Quantidade de pacotes atualmente no Buffer.
-	 * @return Número restante de pacotes.
+	 * @return NÃºmero restante de pacotes.
 	 */
 	public Integer quantityOfRemainingPackets() {
 		return queue.size();

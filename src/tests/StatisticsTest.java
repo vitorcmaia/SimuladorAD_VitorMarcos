@@ -41,7 +41,7 @@ public class StatisticsTest {
 		}
 		
 		// 500.5 -> (((1+1000)*1000)/2) / 1000
-		// -> SomatÛrio de 1 a 1000 dividido por 1000
+		// -> Somat√≥rio de 1 a 1000 dividido por 1000
 		assertEquals(statistics.estimateAverage(), 500.5, 0);
 	}
 	

@@ -110,10 +110,10 @@ public final class Statistics {
 		if(getQuantityOfSamples() == 0 || getQuantityOfSamples() == 1)
 			throw new RuntimeException();
 		
-		Double alpha = 1 - confidence;
+		Double a = 1 - confidence;
 		// Uso uma biblioteca externa, para não implementar F(-1).
-		Double percentil = StudentDist.inverseF(getQuantityOfSamples() - 1, 1 - alpha / 2);
+		Double p = StudentDist.inverseF(getQuantityOfSamples() - 1, 1 - a / 2);
 		
-		return percentil * Math.sqrt(estimateVariance() / getQuantityOfSamples());
+		return p * Math.sqrt(estimateVariance() / getQuantityOfSamples());
 	}
 }

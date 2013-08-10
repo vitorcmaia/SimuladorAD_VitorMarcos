@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import maths.SimulationProperties;
 import network.Pack;
 import network.SACK;
 import network.Sys;
@@ -17,6 +18,9 @@ public class FullNetworkTest {
 	// Mando 5 pacotes em ordem para o roteador e em seguida para o Rx correspondente.
 	public void PacksFromRouterIntoSameRx() {
 		Sys s = new Sys(RouterType.FIFO);
+		
+		assertEquals(s.getRxs().size(), s.getTxs().size());
+		assertEquals(s.getRxs().size(), SimulationProperties.getQuantityOfG1() + SimulationProperties.getQuantityOfG2());
 		
 		// 5 Pacotes, que teoricamente vieram do Tx 3...
 		Pack pack3_1 = new Pack(PackType.CommonTCP, 3, 0L, 1499L);
@@ -46,12 +50,12 @@ public class FullNetworkTest {
 		s.getRouter().sendPackToRx(0.0);
 		sack = s.getRouter().sendPackToRx(0.0);
 		
-		// Deve ser vazia a sequência, pois todos os pacotes chegaram, na ordem certa.
+		// Deve ser vazia a sequï¿½ncia, pois todos os pacotes chegaram, na ordem certa.
 		assertEquals(sack.getSequences().size(), 0);
 	}
 	
 	@Test
-	// Crio 5 pacotes e envio 3, "esqueço" os pacotes 2 e 4.
+	// Crio 5 pacotes e envio 3, "esqueï¿½o" os pacotes 2 e 4.
 	// Depois, envio.
 	public void MissingPacksArrivingLateIntoSameRx() {
 		Sys s = new Sys(RouterType.FIFO);
@@ -91,12 +95,12 @@ public class FullNetworkTest {
 		s.getRouter().sendPackToRx(0.0);
 		sack = s.getRouter().sendPackToRx(0.0);
 		
-		// Deve ser vazia a sequência, pois todos os pacotes chegaram, mesmo fora de ordem.
+		// Deve ser vazia a sequï¿½ncia, pois todos os pacotes chegaram, mesmo fora de ordem.
 		assertEquals(sack.getSequences().size(), 0);
 	}
 	
 	@Test
-	// Entrego todos os pacotes, numa ordem aleatória.
+	// Entrego todos os pacotes, numa ordem aleatï¿½ria.
 	public void PacksInStrangeOrderIntoSameRx() {
 		Sys s = new Sys(RouterType.FIFO);
 		
@@ -126,7 +130,7 @@ public class FullNetworkTest {
 		s.getRouter().sendPackToRx(0.0);
 		sack = s.getRouter().sendPackToRx(0.0);
 		
-		// Deve ser vazia a sequência, pois todos os pacotes chegaram, mesmo fora de ordem.
+		// Deve ser vazia a sequï¿½ncia, pois todos os pacotes chegaram, mesmo fora de ordem.
 		assertEquals(sack.getSequences().size(), 0);
 	}
 	
@@ -162,7 +166,7 @@ public class FullNetworkTest {
 		s.getRouter().sendPackToRx(0.0);
 		s.getRouter().sendPackToRx(0.0);
 		s.getRouter().sendPackToRx(0.0);
-		// Sei que os dois últimos pacotes são de origens diferentes :D
+		// Sei que os dois ï¿½ltimos pacotes sï¿½o de origens diferentes :D
 		sackA = s.getRouter().sendPackToRx(0.0);
 		sackB = s.getRouter().sendPackToRx(0.0);
 		

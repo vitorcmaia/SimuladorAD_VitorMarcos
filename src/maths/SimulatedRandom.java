@@ -3,76 +3,71 @@ package maths;
 import java.util.Random;
 
 /**
- * Gera números aleatórios, com base em distribuições.
+ * Gera nÃºmeros aleatÃ³rios, com base em distribuiÃ§Ãµes exponencial e geomÃ©trica.
  */
 public final class SimulatedRandom {
 	
 	/**
-	 * Armazena o último seed.
+	 * Armazena o Ãºltimo seed.
 	 */
-	private static Long seed = 0L;
+	private static Long seed = null;
 	
 	/**
-	 * Seed desta instância.
-	 */
-	private Long thisSeed = 0L;
-	
-	/**
-	 * Construtor. O seed é escolhido de modo aleatório, mas seu sorteio
-	 * é baseado no seed da última instância de SimulatedRandom.
-	 * Um seed deve ser ao menos 1000000000 maior ou menor que o anterior.
+	 * Construtor. Seta apenas um seed para toda a rodada de simulaÃ§Ã£o.
 	 */
 	public SimulatedRandom() {
-		Long seed;
-		Long dist;
-		do {
-			seed = new Random().nextLong();
-			dist = Math.abs(seed - SimulatedRandom.getSeed());
-		} while(dist < 1000000000); // 1000000000 é Arbitrário.
-		SimulatedRandom.seed = seed;
-		thisSeed = seed;
+		// Durante toda a simulaÃ§Ã£o, haverÃ¡ apenas um seed.
+		if(SimulatedRandom.seed == null)
+			SimulatedRandom.seed = new Random().nextLong();
 	}
 	
 	/**
-	 * Gera um inteiro aleatório menor do que o limite do tipo int.
-	 * @return O número gerado.
+	 * Gera um inteiro aleatÃ³rio menor do que o limite do tipo int.
+	 * @return O nÃºmero gerado.
 	 */
 	public Integer generateInteger() {
-		return new Random(thisSeed).nextInt();
+		return new Random(seed).nextInt();
 	}
 	
 	/**
-	 * Gera um ponto flutuante aleatório entre 0 e 1.
-	 * @return O número gerado.
+	 * Gera um ponto flutuante aleatÃ³rio entre 0 e 1.
+	 * @return O nÃºmero gerado.
 	 */
 	public Double generateDouble() {
-		return new Random(thisSeed).nextDouble();
+		return new Random(seed).nextDouble();
 	}
 	
 	/**
-	 * Gera um número com distribuição exponencial. É usada a inversa da cdf da distribuição.
-	 * @param rate Taxa da distribuição.
-	 * @return O número gerado.
+	 * Gera um nÃºmero com distribuiÃ§Ã£o exponencial. Ã‰ usada a inversa da cdf da distribuiÃ§Ã£o.
+	 * @param rate Taxa da distribuiÃ§Ã£o.
+	 * @return O nÃºmero gerado.
 	*/
 	public double generateExponential(Double rate) {
 		return - Math.log(1 - generateDouble()) / rate;
 	}
 	
 	/**
-	 * Gera um número com distribuição geométrica,
-	 * dada uma probabilidade Bernoulli de sucesso.
+	 * Gera um numero com distribuiÃ§Ã£o geomÃ©trica, dada uma probabilidade Bernoulli de sucesso.
+	 * Este nÃºmero Ã© arredondado para inteiro, pois o resultado Ã© discreto.
 	 * @param p Probabilidade de sucesso.
-	 * @return O número gerado.
+	 * @return O nÃºmero gerado.
 	 */
 	public double generateGeometric(double p) {
 		return Math.ceil( Math.log(1 - generateDouble()) / Math.log(1 - p) );
 	}
 
 	/**
-	 * Informa o último seed gerado.
-	 * @return O seed da última instância.
+	 * Informa o Ãºltimo seed gerado.
+	 * @return O seed da Ãºltima instï¿½ncia.
 	 */
-	public static Long getSeed() {
+	public Long getSeed() {
 		return seed;
+	}
+	
+	/**
+	 * Caso seja necessÃ¡rio mudar o seed das instÃ¢ncias.
+	 */
+	public static void changeSeed() {
+		SimulatedRandom.seed = new Random().nextLong();
 	}
 }

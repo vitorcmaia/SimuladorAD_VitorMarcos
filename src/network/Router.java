@@ -32,8 +32,8 @@ public final class Router {
 	 * Trata a chegada de um pacote no roteador. 
 	 * @param pack Pacote que chegou.
 	 * @param arrivalTime Tempo de chegada do pacote.
-	 * @return true se o pacote n„o foi descartado.
-	 * @throws RuntimeException Se o tipo do roteador n„o for FIFO nem RED.
+	 * @return true se o pacote n√£o foi descartado.
+	 * @throws RuntimeException Se o tipo do roteador n√£o for FIFO nem RED.
 	 */
 	public Boolean receivePacket(Pack pack, Double arrivalTime) throws RuntimeException {
 		switch (type) {
@@ -47,35 +47,35 @@ public final class Router {
 	}
 	
 	/**
-	 * Envia o prÛximo pacote para o Rx correspondente.
-	 * Se for tr·fego de fundo, simplesmente o remove do buffer.
-	 * @param removalTime Momento de ocorrÍncia.
-	 * @return SACK resultante da transaÁ„o do pacote atual.
+	 * Envia o pr√≥ximo pacote para o Rx correspondente.
+	 * Se for tr√°fego de fundo, simplesmente o remove do buffer.
+	 * @param removalTime Momento de ocorr√™ncia.
+	 * @return SACK resultante da transa√ß√£o do pacote atual.
 	 * @throws RuntimeException Se a listagem de receptores for nula.
 	 */
 	public SACK sendPackToRx(Double removalTime) throws RuntimeException {
-		// Se estiver nulo, significa que o construtor de Sys est· incorreto.
+		// Se estiver nulo, significa que o construtor de Sys est√° incorreto.
 		if(Rxs == null)
 			throw new RuntimeException();
 		
 		Pack nextPack = getBuffer().pop();		
-		if(nextPack.getType() != PackType.Congestion) // Tr·fego de fundo se perde.
+		if(nextPack.getType() != PackType.Congestion) // Tr√°fego de fundo se perde.
 			return Rxs.get(nextPack.getDestination()).receivePacket(nextPack);
 		else
 			return null;
 	}
 	
 	private Boolean receivePacketRED(Pack pack, Double arrivalTime) {
-		// TODO Auto-generated method stub
+		// TODO EM BREVE!!
 		return null;
 	}
 	
 	/**
 	 * Comportamento do roteador para o caso FIFO, na chegada de pacote.
-	 * Pacotes chegam e entram no fim da fila, atÈ que o tamanho m·ximo
-	 * do buffer seja alcanÁado. A partir de ent„o, os pacotes s„o descartados.
+	 * Pacotes chegam e entram no fim da fila, at√© que o tamanho m√°ximo
+	 * do buffer seja alcan√ßado. A partir de ent√£o, os pacotes s√£o descartados.
 	 * @param pack Pacote que chegou.
-	 * @return true se n„o foi descartado.
+	 * @return true se n√£o foi descartado.
 	 */
 	private Boolean receivePacketFIFO(Pack packet) {
 		if(getBuffer().quantityOfRemainingPackets().compareTo(getBuffer().getBufferSize()) < 0) {

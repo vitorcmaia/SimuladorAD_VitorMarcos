@@ -4,22 +4,28 @@ import maths.SimulationProperties;
 import enums.PackType;
 
 /**
- * Pacote, que È transmitido de um Tx para um Rx atravÈs de um roteador.
+ * Pacote, que √© transmitido de um Tx para um Rx atrav√©s de um roteador.
  */
 public final class Pack {
 	/**
-	 * Tipo do pacote, que pode ser tr·fego de fundo ou TCP comum.
+	 * Tipo do pacote, que pode ser tr√°fego de fundo ou TCP comum.
 	 */
 	private PackType type;
 	
+	/**
+	 * In√≠cio da sequ√™ncia.
+	 */
 	private Long startingByte;
 	
+	/**
+	 * Fim da sequ√™ncia.
+	 */
 	private Long endingByte;
 	
 	/**
 	 * Momento em que o pacote teve seu envio iniciado no Tx.
 	 */
-	private Double startSendingTime;
+	private double startSendingTime;
 	
 	/**
 	 * Destino do pacote. Existem n Tx e n Rx. Se um pacote veio do Tx k, ele deve ir para o Rx k.
@@ -35,14 +41,14 @@ public final class Pack {
 	}
 	
 	/**
-	 * Construtor padr„o do pacote. Devo informar o tipo.
-	 * @param type Tipo de origem do pacote
+	 * Construtor padr√£o do pacote. Devo informar o tipo e destino.
+	 * @param type Tipo de origem do pacote.
 	 * @param destination Destino do pacote.
 	 */
 	public Pack(PackType type, Integer destination) {
 		this.type = type;
 		if(type == PackType.Congestion)
-			this.destination = -1; // N„o vai ser usado.
+			this.destination = -1; // N√£o vai ser usado.
 		else
 			this.destination = destination;
 		
@@ -50,10 +56,17 @@ public final class Pack {
 		this.endingByte = SimulationProperties.getMSS() - 1;
 	}
 	
+	/**
+	 * Construtor. Devo informar tipo, destino, e bytes inicial e final.
+	 * @param type Tipo de origem do pacote.
+	 * @param destination Destino do pacote.
+	 * @param start Byte inicial.
+	 * @param end Byte final.
+	 */
 	public Pack(PackType type, Integer destination, Long start, Long end) {
 		this.type = type;		
 		if(type == PackType.Congestion)
-			this.destination = -1; // N„o vai ser usado.
+			this.destination = -1; // N√£o vai ser usado.
 		else
 			this.destination = destination;
 		
@@ -63,6 +76,22 @@ public final class Pack {
 			throw new RuntimeException();
 		
 		this.endingByte = end;
+	}
+	
+	/**
+	 * Equals para o tipo Pack.
+	 */
+	public boolean equals(Object o) {		
+		if(!(o instanceof Pack)) return false;
+		
+		Pack p = (Pack) o;
+		
+		if (getDestination().equals(p.getDestination()) &&
+			getStartingByte().equals(p.getStartingByte()) &&
+			getEndingByte().equals(p.getEndingByte()) &&
+			getType().equals(p.getType())) return true;
+		
+		return false;
 	}
 	
 	public Integer getDestination() {
@@ -85,11 +114,11 @@ public final class Pack {
 		this.endingByte = endingByte;
 	}
 
-	public Double getStartSendingTime() {
+	public double getStartSendingTime() {
 		return startSendingTime;
 	}
 
-	public void setStartSendingTime(Double startSendingTime) {
+	public void setStartSendingTime(double startSendingTime) {
 		this.startSendingTime = startSendingTime;
 	}
 }

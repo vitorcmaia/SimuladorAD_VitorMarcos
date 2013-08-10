@@ -8,19 +8,38 @@ public final class SimulationProperties {
 	private static Integer bufferSize = 40;
 	
 	/**
-	 * Quantidade de sessões TCP de grupo 1.
+	 * Quantidade de sessï¿½es TCP de grupo 1.
 	 */
 	private static Integer quantityOfG1 = 10;
 	
 	/**
-	 * Quantidade de sessões TCP de grupo 2.
+	 * Quantidade de sessï¿½es TCP de grupo 2.
 	 */
 	private static Integer quantityOfG2 = 10;
 	
 	/**
-	 * Tamanho padrão de um pacote.
+	 * Atraso de propagaÃ§Ã£o para o grupo 1.
+	 */
+	private static Integer TP1 = 100;
+	
+	/**
+	 * Atraso de propagaÃ§Ã£o para o grupo 2.
+	 */
+	private static Integer TP2 = 50;
+	
+	private static Integer AckG1PropagationTime = 100;
+	
+	private static Integer AckG2PropagationTime = 50;
+	
+	/**
+	 * Tamanho padrï¿½o de um pacote.
 	 */
 	private static Long MSS = 1500L;
+	
+	/**
+	 * Valor alterÃ¡vel do threshold.
+	 */
+	private static long threshold = 65535;
 	
 	public static Integer getBufferSize() {
 		return bufferSize;
@@ -52,5 +71,45 @@ public final class SimulationProperties {
 
 	public static void setMSS(Long mSS) {
 		MSS = mSS;
+	}
+
+	public static Integer getTP1() {
+		return TP1;
+	}
+
+	public static void setTP1(Integer tP1) {
+		TP1 = tP1;
+	}
+
+	public static Integer getTP2() {
+		return TP2;
+	}
+
+	public static void setTP2(Integer tP2) {
+		TP2 = tP2;
+	}
+
+	public static Integer getAckG1PropagationTime() {
+		return AckG1PropagationTime;
+	}
+
+	public static void setAckG1PropagationTime(Integer ackG1PropagationTime) {
+		AckG1PropagationTime = ackG1PropagationTime;
+	}
+
+	public static Integer getAckG2PropagationTime() {
+		return AckG2PropagationTime;
+	}
+
+	public static void setAckG2PropagationTime(Integer ackG2PropagationTime) {
+		AckG2PropagationTime = ackG2PropagationTime;
+	}
+
+	public static long getThreshold() {
+		return threshold;
+	}
+
+	public static void setThreshold(long threshold) {
+		SimulationProperties.threshold = threshold;
 	}
 }

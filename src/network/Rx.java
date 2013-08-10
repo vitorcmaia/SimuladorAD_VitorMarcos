@@ -5,18 +5,18 @@ import java.util.ArrayList;
 public class Rx {
 	
 	/**
-	 * Próximo byte que deveria vir na sequência.
+	 * PrÃ³ximo byte que deveria vir na sequï¿½ncia.
 	 */
 	private Long nextExpectedByte = 0L;
 	
 	/**
-	 * Sequências de pacotes que chegaram fora de ordem.
-	 * Se não estiver vazio, significa que algum pacote foi perdido.
+	 * SequÃªncias de pacotes que chegaram fora de ordem.
+	 * Se nÃ£o estiver vazio, significa que algum pacote foi perdido.
 	 */
 	private ArrayList<ArrayList<Long>> sequencesReceivedOutOfOrder = new ArrayList<ArrayList<Long>>();
 	
 	/**
-	 * Se esta matriz não for vazia, significa que pacotes não chegaram, ou chegaram fora de ordem.
+	 * Se esta matriz nÃ£o for vazia, significa que pacotes nÃ£o chegaram, ou chegaram fora de ordem.
 	 */
 	private ArrayList<ArrayList<Long>> getSequencesReceivedOutOfOrder() {
 		return sequencesReceivedOutOfOrder;
@@ -38,7 +38,7 @@ public class Rx {
 	public SACK receivePacket(Pack pack) {
 		SACK sack = null;
 		if(pack.getStartingByte().compareTo(nextExpectedByte) < 0);
-			// Neste caso apenas retorna o Sack como já está...
+			// Neste caso apenas retorna o Sack como jï¿½ estï¿½...
 		else if(pack.getStartingByte().equals(nextExpectedByte)) {
 			update(pack);
 			ArrayList<Long> seq = sequencesReceivedOutOfOrder.get(0);
