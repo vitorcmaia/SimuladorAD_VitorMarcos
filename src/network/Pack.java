@@ -97,7 +97,11 @@ public final class Pack {
 	public Integer getDestination() {
 		return destination;
 	}
-
+	
+	public void setDestination(Integer destination) {
+		this.destination = destination;
+	}
+	
 	public Long getStartingByte() {
 		return startingByte;
 	}

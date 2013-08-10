@@ -17,8 +17,19 @@ import enums.PackType;
 public class TxTest {
 	
 	@Test
+	public void sendPack() {
+		Tx tx = new Tx(Group.Group1, 0);
+		Pack p1 = new Pack(PackType.CommonTCP, 0, 0L, SimulationProperties.getMSS() - 1); 
+		
+		Pack p2 = tx.sendPacket(0);
+		p2.setDestination(0);
+		assertEquals(p1, p2);
+	}
+	
+	@Test
 	public void checkVariables() {
 		Tx tx = new Tx(Group.Group1, 15);
+		assertTrue(tx.getNextPacketToSend() < tx.getOldestNotReceivedPacket() + tx.getCongestionWindow());
 		assertEquals(15, tx.sendPacket(0).getDestination().intValue());
 		assertEquals(SimulationProperties.getMSS().longValue(), tx.getCongestionWindow());
 		assertEquals(SimulationProperties.getThreshold(), tx.getThreshold());
@@ -89,6 +100,54 @@ public class TxTest {
 	}
 	
 	@Test
+	public void slowStart1() {
+		Tx tx = new Tx(Group.Group1, 9);
+		
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, 2 * SimulationProperties.getMSS(), null), 0);
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), null), 0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		
+		ArrayList<ArrayList<Long>> matrix1 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds1 = new ArrayList<Long>();
+		bounds1.add(4 * SimulationProperties.getMSS());
+		bounds1.add(5 * SimulationProperties.getMSS());
+		matrix1.add(bounds1);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix1), 0);
+		
+		ArrayList<ArrayList<Long>> matrix2 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds2 = new ArrayList<Long>();
+		bounds2.add(4 * SimulationProperties.getMSS());
+		bounds2.add(6 * SimulationProperties.getMSS());
+		matrix2.add(bounds2);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix2), 0);
+		
+		assertEquals(3 * SimulationProperties.getMSS(), tx.getOldestNotReceivedPacket());
+	}
+	
+	@Test
+	public void SecondSendPack() {
+		Tx tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0.0);
+		Pack p1 = new Pack(PackType.CommonTCP, 0, SimulationProperties.getMSS(), 2 * SimulationProperties.getMSS() - 1);
+		Pack p2 = tx.sendPacket(0);
+		p2.setDestination(0);
+
+		assertEquals(p1, p2);
+	}
+	
+	@Test
 	public void DuplicationBehaviour() {
 		Tx tx = new Tx(Group.Group1, 9);
 		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0.0);
@@ -116,5 +175,167 @@ public class TxTest {
 		tx.receiveSack(new SACK(0, 7 * SimulationProperties.getMSS(), null), 0.0);
 
 		assertEquals(8 * SimulationProperties.getMSS(), tx.getCongestionWindow());
+		
+		tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, 2 * SimulationProperties.getMSS(), null), 0);
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), null), 0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		
+		matrix1 = new ArrayList<ArrayList<Long>>();
+		bounds1 = new ArrayList<Long>();
+		bounds1.add(4 * SimulationProperties.getMSS());
+		bounds1.add(5 * SimulationProperties.getMSS());
+		matrix1.add(bounds1);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix1), 0.0);
+		
+		matrix2 = new ArrayList<ArrayList<Long>>();
+		bounds2 = new ArrayList<Long>();
+		bounds2.add(4 * SimulationProperties.getMSS());
+		bounds2.add(6 * SimulationProperties.getMSS());
+		matrix2.add(bounds2);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix2), 0.0);
+		
+		assertEquals(6 * SimulationProperties.getMSS(), tx.getCongestionWindow());
+	}
+
+	@Test
+	public void timeOutCheck() {
+		Tx tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, 2 * SimulationProperties.getMSS(), null), 0);
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), null), 0);
+		Pack p = tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);		
+		tx.handleTimeOutEvent();
+		assertEquals(tx.getThreshold(), 2 * SimulationProperties.getMSS());
+		assertEquals(tx.getCongestionWindow(), SimulationProperties.getMSS().longValue());
+		assertEquals(p, tx.sendPacket(0));
+		
+		tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.handleTimeOutEvent();
+		p = new Pack(PackType.CommonTCP, 9, 0L, 1499L);
+		assertEquals(p, tx.sendPacket(0));
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testNotReadException() {
+		Tx tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+	}
+	
+	/**
+	 * Descarta um pacote e testa o comportamento do TxTCP no Fast Retransmit.
+	 */
+	@Test
+	public void FastRetransmitCheck() {
+		Tx tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0.0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, 2 * SimulationProperties.getMSS(), null), 0.0);
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), null), 0.0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		
+		ArrayList<ArrayList<Long>> matrix1 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds1 = new ArrayList<Long>();
+		bounds1.add(4 * SimulationProperties.getMSS());
+		bounds1.add(5 * SimulationProperties.getMSS());
+		matrix1.add(bounds1);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix1), 0.0);
+		
+		ArrayList<ArrayList<Long>> matrix2 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds2 = new ArrayList<Long>();
+		bounds2.add(4 * SimulationProperties.getMSS());
+		bounds2.add(6 * SimulationProperties.getMSS());
+		matrix2.add(bounds2);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix2), 0.0);
+		
+		ArrayList<ArrayList<Long>> matrix3 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds3 = new ArrayList<Long>();
+		bounds3.add(4 * SimulationProperties.getMSS());
+		bounds3.add(7 * SimulationProperties.getMSS());
+		matrix3.add(bounds3);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix3), 0.0);
+		
+		assertTrue(tx.fastRetransmitIsOn());
+		
+		tx.receiveSack(new SACK(0, 7 * SimulationProperties.getMSS(), null), 0.0);
+
+		assertTrue(!tx.fastRetransmitIsOn());
+		assertEquals(tx.getCongestionWindow(), tx.getThreshold());
+	}
+
+
+	@Test
+	public void FastRetransmitCheck2() {
+		Tx tx = new Tx(Group.Group1, 9);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, SimulationProperties.getMSS(), null), 0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.receiveSack(new SACK(0, 2 * SimulationProperties.getMSS(), null), 0);
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), null), 0);
+
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		tx.sendPacket(0);
+		
+		ArrayList<ArrayList<Long>> matrix1 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds1 = new ArrayList<Long>();
+		bounds1.add(4 * SimulationProperties.getMSS());
+		bounds1.add(5 * SimulationProperties.getMSS());
+		matrix1.add(bounds1);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix1), 0.0);
+		
+		ArrayList<ArrayList<Long>> matrix2 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds2 = new ArrayList<Long>();
+		bounds2.add(4 * SimulationProperties.getMSS());
+		bounds2.add(6 * SimulationProperties.getMSS());
+		matrix2.add(bounds2);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix2), 0.0);
+		
+		ArrayList<ArrayList<Long>> matrix3 = new ArrayList<ArrayList<Long>>();
+		ArrayList<Long> bounds3 = new ArrayList<Long>();
+		bounds3.add(4 * SimulationProperties.getMSS());
+		bounds3.add(7 * SimulationProperties.getMSS());
+		matrix3.add(bounds3);
+		
+		tx.receiveSack(new SACK(0, 3 * SimulationProperties.getMSS(), matrix3), 0.0);
+		
+		assertEquals(3 * SimulationProperties.getMSS(), tx.getNextPacketToSend());
+		
+		tx.sendPacket(0);
+		assertEquals(7 * SimulationProperties.getMSS(), tx.getNextPacketToSend());
 	}
 }

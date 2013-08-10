@@ -165,7 +165,7 @@ public class Tx {
 	 */
 	public void receiveSack(SACK sack, double receiveTime) {
 		setReceivedSequencesFromRx(sack.getSequences());
-		if(isFastRetransmit)
+		if(fastRetransmitIsOn())
 			fastRetransmitActions(sack, receiveTime);
 		else
 			notFastRetransmitActions(sack, receiveTime);
@@ -187,7 +187,7 @@ public class Tx {
 		}
 		
 		if (sack.getNextExpectedByte() >= retransmitionWindow) {
-			isFastRetransmit = false;
+			setFastRetransmit(false);
 			duplicatedAcksCounter = 0;
 			congestionWindow = threshold;
 			quantityOfReceivedSacks = 0;
@@ -230,7 +230,7 @@ public class Tx {
 			duplicatedAcksCounter++;
 			if (duplicatedAcksCounter == 3) {
 				recalculateThreshold();
-				isFastRetransmit = true;
+				setFastRetransmit(true);
 				if (sack.getSequences() != null)
 					retransmitionWindow = sack.getSequences().get(sack.getSequences().size() - 1).get(1);
 				else
@@ -254,7 +254,7 @@ public class Tx {
 	}
 	
 	public void handleTimeOutEvent() {
-		isFastRetransmit = false;
+		setFastRetransmit(false);
 		nextPacketToSend = oldestNotReceivedPacket;
 		duplicatedAcksCounter = 0;
 		quantityOfReceivedSacks = 0;
@@ -321,5 +321,13 @@ public class Tx {
 	
 	public long getOldestNotReceivedPacket() {
 		return oldestNotReceivedPacket;
+	}
+
+	public boolean fastRetransmitIsOn() {
+		return isFastRetransmit;
+	}
+
+	public void setFastRetransmit(boolean isFastRetransmit) {
+		this.isFastRetransmit = isFastRetransmit;
 	}
 }
