@@ -22,6 +22,8 @@ public class DefineParams extends JFrame {
 	private JTextField bufferSize; // Tamanho do buffer do roteador
 	private JTextField numberStationsGroup1; // Número de estações para o grupo 1
 	private JTextField numberStationsGroup2; // Número de estações para o grupo 2
+	private JTextField ackG1PropagationTime; // Tempo de chegada do Ack 1
+	private JTextField ackG2PropagationTime; // Tempo de chegada do Ack 2
 //	private JComboBox<String> routerPolitic;
 	private JButton save;
 	
@@ -68,6 +70,14 @@ public class DefineParams extends JFrame {
 		this.add(new JLabel("Número de Estações para o Grupo 2: "));
 		this.numberStationsGroup2 = new JTextField();
 		this.add(numberStationsGroup2);
+		
+		this.add(new JLabel("Tempo de chegada do Ack 1"));
+		this.ackG1PropagationTime = new JTextField();
+		this.add(ackG1PropagationTime);
+		
+		this.add(new JLabel("Tempo de chegada do Ack 2"));
+		this.ackG2PropagationTime = new JTextField();
+		this.add(ackG2PropagationTime);
 		
 		this.add(new JLabel("Selecione a Política do Roteador: "));
 		String[] routers = new String[2];
