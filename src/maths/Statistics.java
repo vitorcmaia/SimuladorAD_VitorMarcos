@@ -1,13 +1,13 @@
-package model;
+package maths;
 
+import enums.ICBound;
 import umontreal.iro.lecuyer.probdist.StudentDist;
-import Enums.ICBound;
 
 /**
  * Calcula estatísticas básicas, dado um conjunto de amostras.
  * Estima média, variância, desvio padrão e IC.
  */
-public class Statistics {
+public final class Statistics {
 	
 	/**
 	 * É possível calcular a média incrementalmente. A cada amostra adicionada,
@@ -110,10 +110,10 @@ public class Statistics {
 		if(getQuantityOfSamples() == 0 || getQuantityOfSamples() == 1)
 			throw new RuntimeException();
 		
-		Double alpha = 1 - confidence;
+		Double a = 1 - confidence;
 		// Uso uma biblioteca externa, para não implementar F(-1).
-		Double percentil = StudentDist.inverseF(getQuantityOfSamples() - 1, 1 - alpha / 2);
+		Double p = StudentDist.inverseF(getQuantityOfSamples() - 1, 1 - a / 2);
 		
-		return percentil * Math.sqrt(estimateVariance() / getQuantityOfSamples());
+		return p * Math.sqrt(estimateVariance() / getQuantityOfSamples());
 	}
 }

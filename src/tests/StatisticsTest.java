@@ -1,11 +1,12 @@
 package tests;
 
 import static org.junit.Assert.*;
-import model.Statistics;
+import maths.Statistics;
 
 import org.junit.Test;
 
-import Enums.ICBound;
+import enums.ICBound;
+
 
 public class StatisticsTest {
 	
@@ -40,7 +41,7 @@ public class StatisticsTest {
 		}
 		
 		// 500.5 -> (((1+1000)*1000)/2) / 1000
-		// -> SomatÛrio de 1 a 1000 dividido por 1000
+		// -> Somat√≥rio de 1 a 1000 dividido por 1000
 		assertEquals(statistics.estimateAverage(), 500.5, 0);
 	}
 	
@@ -143,9 +144,9 @@ public class StatisticsTest {
 		
 		Double dist1 = statistics.estimateAverage() - statistics.ConfidenceIntervalDistance(0.98, ICBound.Lower);
 		Double dist2 = statistics.ConfidenceIntervalDistance(0.98, ICBound.Upper) - statistics.estimateAverage();
-		
 		assertEquals(dist1, dist2, 0.0001);
 	}
+	
 }
 
 
