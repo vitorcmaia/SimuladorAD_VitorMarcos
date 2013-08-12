@@ -135,6 +135,14 @@ public class DefineParams extends JFrame {
 		return numberStationsGroup2;
 	}
 	
+	public JTextField getAckG1PropagationTime() {
+		return ackG1PropagationTime;
+	}
+	
+	public JTextField getAckG2PropagationTime() {
+		return ackG2PropagationTime;
+	}
+	
 //	public JComboBox<String> getRouterPolitic() {
 //		return routerPolitic;
 //	}
