@@ -18,6 +18,11 @@ public final class SimulationProperties {
 	private static Integer quantityOfG2 = 10;
 	
 	/**
+	 * Taxa de saída do roteador, 10Mbps.
+	 */
+	private static double outputRate = 1000000; //10 Mbps // Conferir!...
+	
+	/**
 	 * Atraso de propagação para o grupo 1.
 	 */
 	private static Integer TP1 = 100;
@@ -111,5 +116,13 @@ public final class SimulationProperties {
 
 	public static void setThreshold(long threshold) {
 		SimulationProperties.threshold = threshold;
+	}
+
+	public static double getOutputRate() {
+		return outputRate;
+	}
+
+	public static void setOutputRate(double outputRate) {
+		SimulationProperties.outputRate = outputRate;
 	}
 }

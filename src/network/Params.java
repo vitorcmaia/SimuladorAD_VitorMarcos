@@ -12,7 +12,7 @@ public class Params extends Properties {
 	
 	public final static long MSS = 1500L;
 	
-	// Intialize the recorded params on a file
+	// Initialize the recorded params on a file
 	public Params() throws IOException {
 		File fileParams = new File(pathParams);
 		fileParams.createNewFile();

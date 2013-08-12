@@ -40,6 +40,14 @@ public final class Buffer {
 	}
 	
 	/**
+	 * Informa, SEM REMOVER, o primeiro pacote da fila.
+	 * @return
+	 */
+	public Pack getNextPack() {
+		return queue.get(0);
+	}
+	
+	/**
 	 * Quantidade de pacotes atualmente no Buffer.
 	 * @return Número restante de pacotes.
 	 */
@@ -53,5 +61,9 @@ public final class Buffer {
 	 */
 	public Integer getBufferSize() {
 		return bufferSize;
+	}
+
+	public void setBufferSize(Integer bufferSize) {
+		this.bufferSize = bufferSize;
 	}
 }

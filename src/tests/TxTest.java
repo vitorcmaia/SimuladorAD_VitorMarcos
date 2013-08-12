@@ -336,6 +336,10 @@ public class TxTest {
 		assertEquals(3 * SimulationProperties.getMSS(), tx.getNextPacketToSend());
 		
 		tx.sendPacket(0);
-		assertEquals(7 * SimulationProperties.getMSS(), tx.getNextPacketToSend());
+		Pack pack = new Pack(PackType.CommonTCP, 9);
+		pack.setDestination(tx.getIndex());
+		pack.setStartingByte(7 * SimulationProperties.getMSS());
+		pack.setEndingByte(8 * SimulationProperties.getMSS() - 1);
+		assertEquals(pack, tx.sendPacket(0));
 	}
 }
