@@ -1,5 +1,7 @@
 package maths;
 
+import enums.RouterType;
+
 public final class SimulationProperties {
 	
 	/**
@@ -18,14 +20,19 @@ public final class SimulationProperties {
 	private static Integer quantityOfG2 = 10;
 	
 	/**
-	 * Taxa de saída do roteador, 10Mbps.
+	 * Taxa do enlace de saída do gargalo em bps.
 	 */
-	private static double outputRate = 1000000; //10 Mbps // Conferir!...
+	private static double cg = 10E6;
 	
 	/**
 	 * Atraso de propagação para o grupo 1.
 	 */
 	private static Integer TP1 = 100;
+	
+	/**
+	 * Roteador que será usado como padrão na simulação.
+	 */
+	private static RouterType routerType = RouterType.RED;
 	
 	/**
 	 * Atraso de propagação para o grupo 2.
@@ -45,6 +52,26 @@ public final class SimulationProperties {
 	 * Valor alterável do threshold.
 	 */
 	private static long threshold = 65535;
+	
+	/**
+	 * Se terá tráfego de fundo.
+	 */
+	private static boolean withCongestion = true;
+	
+	/**
+	 * Número de eventos da fase transiente.
+	 */
+	private static int transientPhaseEvents = 0;
+	
+	/**
+	 * Taxa do enlace de saída dos servidores em bps.
+	 */
+	private static double cs = 1E9;
+	
+	/**
+	 * Número de eventos de uma rodada de simulação.
+	 */
+	private static Integer eventsInARow = 1000000;
 	
 	public static Integer getBufferSize() {
 		return bufferSize;
@@ -118,11 +145,51 @@ public final class SimulationProperties {
 		SimulationProperties.threshold = threshold;
 	}
 
-	public static double getOutputRate() {
-		return outputRate;
+	public static double getCg() {
+		return cg;
 	}
 
-	public static void setOutputRate(double outputRate) {
-		SimulationProperties.outputRate = outputRate;
+	public static void setCg(double cg) {
+		SimulationProperties.cg = cg;
+	}
+
+	public static RouterType getRouterType() {
+		return routerType;
+	}
+
+	public static void setRouterType(RouterType routerType) {
+		SimulationProperties.routerType = routerType;
+	}
+
+	public static Integer getEventsInARow() {
+		return eventsInARow;
+	}
+
+	public static void setEventsInARow(Integer eventsInARow) {
+		SimulationProperties.eventsInARow = eventsInARow;
+	}
+
+	public static boolean isWithCongestion() {
+		return withCongestion;
+	}
+
+	public static void setWithCongestion(boolean withCongestion) {
+		SimulationProperties.withCongestion = withCongestion;
+	}
+
+	public static Double getCs() {
+		return cs;
+	}
+
+	public static void setCs(Double cs) {
+		SimulationProperties.cs = cs;
+	}
+
+	public static int getTransientPhaseEvents() {
+		return transientPhaseEvents;
+	}
+
+	public static void setTransientPhaseEvents(int transientPhaseEvents) {
+		SimulationProperties.transientPhaseEvents = transientPhaseEvents;
 	}
 }

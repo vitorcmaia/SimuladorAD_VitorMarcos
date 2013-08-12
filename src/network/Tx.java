@@ -277,9 +277,7 @@ public class Tx {
 	}
 	
 	/**
-	 * Estimativa do retransmission time-out (RTO) usada usada para agendar o
-	 * evento de time-out (em milisegundos).
-	 * 
+	 * Usado no agendamento de Timeout.
 	 * @return estimativa do RTO
 	 */
 	public double getRTO() {

@@ -105,7 +105,7 @@ public final class Statistics {
 	 * @return A distância entre a média e os limites.
 	 * @throws RuntimeException Caso existam menos de duas amostras. 
 	 */
-	private double getAverageConfidenceIntervalDistance(Double confidence) throws RuntimeException {
+	public double getAverageConfidenceIntervalDistance(Double confidence) throws RuntimeException {
 		
 		if(getQuantityOfSamples() == 0 || getQuantityOfSamples() == 1)
 			throw new RuntimeException();
