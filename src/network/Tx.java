@@ -138,24 +138,29 @@ public class Tx {
 			pack.setStartingByte(nextPacketToSend);
 			pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
 			nextPacketToSend += SimulationProperties.getMSS();
+			return pack;
 		} else {
-			if (receivedSequencesFromRx.get(receivedSequencesFromRx.size() - 1).get(1) < nextPacketToSend) {
+			if (receivedSequencesFromRx.get(receivedSequencesFromRx.size() - 1).get(1) <= nextPacketToSend) {
 				pack.setStartingByte(nextPacketToSend);
 				pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
 				nextPacketToSend += SimulationProperties.getMSS();
+				return pack;
 			} else {
 				for(ArrayList<Long> pair : receivedSequencesFromRx) {
-					if(nextPacketToSend < pair.get(0)) {
+					if (nextPacketToSend >= pair.get(0) && nextPacketToSend <= pair.get(1)) {
+						nextPacketToSend = pair.get(1);
 						pack.setStartingByte(nextPacketToSend);
 						pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
 						nextPacketToSend += SimulationProperties.getMSS();
-						if(nextPacketToSend == pair.get(0).longValue())
-							nextPacketToSend = pair.get(1);
+						return pack;
 					}
 				}
+				pack.setStartingByte(nextPacketToSend);
+				pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
+				nextPacketToSend += SimulationProperties.getMSS();
+				return pack;
 			}
 		}
-		return pack;
 	}
 
 	/**
@@ -164,6 +169,7 @@ public class Tx {
 	 * @param receiveTime Tempo de recebimento.
 	 */
 	public void receiveSack(SACK sack, double receiveTime) {
+		updateRTT(sack.getOriginalPackSendingTime(), receiveTime);
 		setReceivedSequencesFromRx(sack.getSequences());
 		if(fastRetransmitIsOn())
 			fastRetransmitActions(sack, receiveTime);
@@ -183,7 +189,6 @@ public class Tx {
 			oldestNotReceivedPacket = sack.getNextExpectedByte();
 			if (oldestNotReceivedPacket > nextPacketToSend)
 				nextPacketToSend = oldestNotReceivedPacket;
-			updateRTT(sack.getOriginalPackSendingTime(), receiveTime);
 		}
 		
 		if (sack.getNextExpectedByte() >= retransmitionWindow) {
@@ -209,15 +214,13 @@ public class Tx {
 				congestionWindow += SimulationProperties.getMSS();
 			}
 		}
-		if (sack.getNextExpectedByte() <= oldestNotReceivedPacket) {
+		if (sack.getNextExpectedByte() == oldestNotReceivedPacket) {
 			duplicatedAck(sack);
-		} else {
+		} else if (sack.getNextExpectedByte() > oldestNotReceivedPacket) {
 			oldestNotReceivedPacket = sack.getNextExpectedByte();
 			
 			if (oldestNotReceivedPacket > nextPacketToSend)
 				nextPacketToSend = oldestNotReceivedPacket;
-			
-			updateRTT(sack.getOriginalPackSendingTime(), receiveTime);
 		}
 	}
 	
@@ -234,9 +237,9 @@ public class Tx {
 				if (sack.getSequences() != null)
 					retransmitionWindow = sack.getSequences().get(sack.getSequences().size() - 1).get(1);
 				else
-					retransmitionWindow = sack.getNextExpectedByte();
+					retransmitionWindow = nextPacketToSend;
 
-				nextPacketToSend = sack.getNextExpectedByte();
+				nextPacketToSend = oldestNotReceivedPacket;
 			}
 		} else {
 			lastDuplicatedACK = sack.getNextExpectedByte();
