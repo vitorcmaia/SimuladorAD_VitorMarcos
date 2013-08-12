@@ -93,7 +93,7 @@ public final class Router {
 			redAttributes.getIdleIntervalStatistics().addSample(
 					redAttributes.getIdleIntervalEnd() - redAttributes.getIdleIntervalStart());
 
-			double transTime = SimulationProperties.getMSS() / SimulationProperties.getOutputRate();
+			double transTime = SimulationProperties.getMSS() / SimulationProperties.getCg();
 			redAttributes.setM(
 					Math.round(redAttributes.getIdleIntervalStatistics().estimateAverage() / transTime));
 		}

@@ -1,6 +1,7 @@
 package network;
 
 import maths.SimulationProperties;
+import enums.EventType;
 import enums.PackType;
 
 /**
@@ -11,6 +12,11 @@ public final class Pack {
 	 * Tipo do pacote, que pode ser tráfego de fundo ou TCP comum.
 	 */
 	private PackType type;
+	
+	/**
+	 * Possibilidade de timeout, referente ao pacote.
+	 */
+	private Event timeout;
 	
 	/**
 	 * Início da sequência.
@@ -125,4 +131,19 @@ public final class Pack {
 	public void setStartSendingTime(double startSendingTime) {
 		this.startSendingTime = startSendingTime;
 	}
+
+	public Event getTimeout() {
+		return timeout;
+	}
+	
+	/**
+	 * Seta o evento de timeout do pacote.
+	 * @param timeout Evento de Timeout.
+	 */
+	public void setTimeout(Event timeout) {
+		if(!timeout.getType().equals(EventType.Timeout))
+			throw new RuntimeException();
+		this.timeout = timeout;
+	}
+
 }
