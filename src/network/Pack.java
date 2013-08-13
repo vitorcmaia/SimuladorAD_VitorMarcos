@@ -100,6 +100,10 @@ public final class Pack {
 		return false;
 	}
 	
+	public long size() {
+		return getEndingByte() - getStartingByte() + 1;
+	}
+	
 	public Integer getDestination() {
 		return destination;
 	}

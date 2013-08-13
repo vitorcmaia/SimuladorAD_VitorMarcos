@@ -5,6 +5,7 @@ import java.util.PriorityQueue;
 
 import enums.EventType;
 import enums.Group;
+import enums.PackType;
 
 import maths.SimulatedRandom;
 import maths.SimulationProperties;
@@ -12,6 +13,7 @@ import maths.Statistics;
 import network.Event;
 import network.Pack;
 import network.Rx;
+import network.SACK;
 import network.Sys;
 import network.TransientPhaseData;
 import network.Tx;
@@ -37,6 +39,11 @@ public class Simulation {
 	private PriorityQueue<Event> events = new PriorityQueue<Event>();
 	
 	/**
+	 * Gerador de números aleatórios.
+	 */
+	private SimulatedRandom random;
+	
+	/**
 	 * Intervalo médio entre chegadas Poisson de tráfego de fundo. 24ms.
 	 */
 	private final int congestionPacketFrequency = 24;
@@ -53,6 +60,8 @@ public class Simulation {
 	 * Construtor. Seta valores iniciais e parâmetros iniciais.
 	 */
 	public Simulation() {
+		random  = new SimulatedRandom();
+		
 		for(int i = 0 ; i < SimulationProperties.getQuantityOfG1() +
 				            SimulationProperties.getQuantityOfG2() ; i++)
 			statisticsPerTx.add(new Statistics());
@@ -102,38 +111,36 @@ public class Simulation {
 	 * e também envios de pacotes vindo dos Txs.
 	 */
 	private void setFirstEvents() {
-		SimulatedRandom r = new SimulatedRandom();
-		
 		resetSimulation();
 		
 		// Prepara o tráfego de fundo.
 		if(SimulationProperties.isWithCongestion()) {
 			Event firstCongestionPack = new Event(EventType.CongestionPacketIntoRouter); // Evento "Pacote de Tráfego de Fundo chegar ao roteador"
-			firstCongestionPack.setTime(r.generateExponential(1.0 / congestionPacketFrequency));
-			events.add(firstCongestionPack);
+			firstCongestionPack.setTime(random.generateExponential(1.0 / congestionPacketFrequency));
+			getEvents().add(firstCongestionPack);
 		}
 		
 		// Prepara os servidores para transmissão de Tx-Rx.
-		for(Tx tx : system.getTxs()) {
+		for(Tx tx : getSystem().getTxs()) {
 			double propagationDelay = setPropagationDelay(tx);
-			double randTime = r.generateDouble() * 150; // Fator aleatório além da propagação e da transmissão.
+			double randTime = random.generateDouble() * 150; // Fator aleatório além da propagação e da transmissão.
 			
 			Event packSent = new Event(EventType.TxPacketHeadsToRouter); // Evento "Pacote sair do Tx"
 			packSent.setTime(randTime + transmissionTime);
 			packSent.setTxIndex(tx.getIndex());
-			events.add(packSent);
+			getEvents().add(packSent);
 			
 			Pack pack = tx.sendPacket(randTime);
 			Event firstTcpPack = new Event(EventType.TxPacketIntoRouter); // Evento "Pacote TCP chegar ao roteador"
 			firstTcpPack.setTime(randTime + transmissionTime + propagationDelay);
 			firstTcpPack.setPack(pack);
-			events.add(firstTcpPack);
+			getEvents().add(firstTcpPack);
 			
 			Event possibleTimeout = new Event(EventType.Timeout); // Evento "Possível Timeout do pacote"
 			possibleTimeout.setTime(randTime + tx.getRTO());
 			possibleTimeout.setTxIndex(tx.getIndex());
 			pack.setTimeout(possibleTimeout);
-			events.add(possibleTimeout);
+			getEvents().add(possibleTimeout);
 		}
 	}
 	
@@ -148,7 +155,7 @@ public class Simulation {
 		double transientPhaseEndingTime = currentTime;
 		ArrayList<Long> expectedBytes = new ArrayList<Long>();
 		
-		for(Rx rx: system.getRxs())
+		for(Rx rx: getSystem().getRxs())
 			expectedBytes.add(rx.getNextExpectedByte());
 		
 		return new TransientPhaseData(transientPhaseEndingTime, expectedBytes);
@@ -167,8 +174,8 @@ public class Simulation {
 			for (int i = 0; i < SimulationProperties.getEventsInARow(); i++)
 				handleEvents();
 			
-			for(int i = 0 ; i < system.getRxs().size() ; i++) {
-				double a = system.getRxs().get(i).getNextExpectedByte() - transientPhaseData.getExpectedBytes().get(i);
+			for(int i = 0 ; i < getSystem().getRxs().size() ; i++) {
+				double a = getSystem().getRxs().get(i).getNextExpectedByte() - transientPhaseData.getExpectedBytes().get(i);
 				double b = currentTime - transientPhaseData.getTransientPhaseEndingTime();
 				statisticsPerTx.get(i).addSample((a/b) * (8/1E-3));
 			}
@@ -180,16 +187,14 @@ public class Simulation {
 	 */
 	public void handleEvents() {
 		// Não é esperado que esta lista esteja vazia...
-		if(events.isEmpty()) throw new RuntimeException();
-		
+		if(getEvents().isEmpty()) throw new RuntimeException();
 		// Evento é retornado e deletado da fila.
-		Event event = events.poll();
+		Event event = getEvents().poll();
 		
 		// Seria uma falha séria na lógica do simulador, mas é importante testar os tempos de início.
 		if(event.getTime() < currentTime) throw new RuntimeException(); 
 		
 		currentTime = event.getTime();
-		
 		switch (event.getType()) {
 			case CongestionPacketIntoRouter:
 				handleCongestionPacketIntoRouterEvent(event); break;
@@ -209,12 +214,30 @@ public class Simulation {
 	}
 
 	private void handleSackArrives(Event event) {
-		// TODO Auto-generated method stub
+		SACK sack = event.getSack();
+		Tx tx = getSystem().getTxs().get(sack.getDestination());
+		tx.receiveSack(sack, currentTime);
 		
+		if(!tx.isTransmiting())
+			if(tx.getNextPacketToSend() < tx.getOldestNotReceivedPacket() + tx.getCongestionWindow())
+				newTxPacketHeadsToRouter(tx);
+		
+		getEvents().remove(sack.getTimeout());
+		
+		ArrayList<Pack> packs = new ArrayList<Pack>();
+		for(Pack pack : tx.getNotDeliveredPacks())
+			packs.add(pack);
+		
+		for(Pack pack : packs) {
+			if(pack.getEndingByte() < sack.getNextExpectedByte()) {
+				getEvents().remove(pack.getTimeout());
+				tx.getNotDeliveredPacks().remove(pack);
+			}
+		}
 	}
 
 	private void handleTxPacketHeadsToRouter(Event event) {
-		Tx tx = system.getTxs().get(event.getTxIndex());
+		Tx tx = getSystem().getTxs().get(event.getTxIndex());
 		if(tx.getNextPacketToSend() < tx.getOldestNotReceivedPacket() + tx.getCongestionWindow())
 			newTxPacketHeadsToRouter(tx);
 		else
@@ -233,23 +256,23 @@ public class Simulation {
 		Event endOfTransmition = new Event(EventType.TxPacketHeadsToRouter);
 		endOfTransmition.setTime(currentTime + transmissionTimeMs);
 		endOfTransmition.setTxIndex(tx.getIndex());
-		events.add(endOfTransmition);
+		getEvents().add(endOfTransmition);
 		
 		Event routerReceivesTcp = new Event(EventType.TxPacketIntoRouter);
 		routerReceivesTcp.setTime(currentTime + transmissionTimeMs + propagation);
 		routerReceivesTcp.setPack(nextTcpPack);
-		events.add(routerReceivesTcp);
+		getEvents().add(routerReceivesTcp);
 		
 		Event timeout = new Event(EventType.Timeout);
 		timeout.setTime(currentTime + tx.getRTO());
 		timeout.setTxIndex(tx.getIndex());
 		nextTcpPack.setTimeout(timeout);
-		events.add(timeout);
+		getEvents().add(timeout);
 		
 		if(tx.getNotDeliveredPacks().contains(nextTcpPack)) {
 			int index = tx.getNotDeliveredPacks().indexOf(nextTcpPack);
 			Pack p = tx.getNotDeliveredPacks().get(index);
-			events.remove(p.getTimeout());
+			getEvents().remove(p.getTimeout());
 			tx.getNotDeliveredPacks().remove(index);
 		}
 		
@@ -257,21 +280,115 @@ public class Simulation {
 	}
 
 	private void handleRouterSuccessfullySentPacket(Event event) {
-		// TODO Auto-generated method stub
-		
+		SACK sack = getSystem().getRouter().sendPackToRx(currentTime);
+		if(sack != null) { // Tráfego de fundo se perde
+			int ackPropagation = getSystem().getTxs().get(sack.getDestination())
+					.getGroup().equals(Group.Group1) ?
+					SimulationProperties.getAckG1PropagationTime() :
+					SimulationProperties.getAckG2PropagationTime();
+			Event sendSack = new Event(EventType.SackArrives);
+			sendSack.setTime(currentTime + ackPropagation);
+			sendSack.setSack(sack);
+			getEvents().add(sendSack);
+		}
+		// Mais um pacote sai do roteador para um Rx.
+		if(getSystem().getRouter().getBuffer().quantityOfRemainingPackets().intValue() >= 1) {
+			Event sendPack = new Event(EventType.RouterSuccessfullySentPacket);
+			double packTransmission = packTransmission(SimulationProperties.getMSS());
+			sendPack.setTime(currentTime + packTransmission);
+			getEvents().add(sendPack);
+		}
 	}
-
+	
+	public double packTransmission(long size) {
+		return 1E3 * size * (8 / SimulationProperties.getCg());
+	}
+	
 	private void handleTimeout(Event event) {
-		// TODO Auto-generated method stub
+		Tx tx = getSystem().getTxs().get(event.getTxIndex());
 		
+		if(!tx.isTransmiting()) {
+			tx.handleTimeOutEvent();
+			newTxPacketHeadsToRouter(tx);
+		} else
+			tx.handleTimeOutEvent();
 	}
 
 	private void handleTxPacketIntoRouter(Event event) {
-		// TODO Auto-generated method stub
-		
+		// Sempre que o roteador fica vazio, um novo envio é agendado.
+		if(getSystem().getRouter().getBuffer().quantityOfRemainingPackets().intValue() == 0) {
+			Event sendPack = new Event(EventType.RouterSuccessfullySentPacket);
+			double packTransmission = packTransmission(SimulationProperties.getMSS());
+			sendPack.setTime(currentTime + packTransmission);
+			getEvents().add(sendPack);
+		}
+		getSystem().getRouter().receivePacket(event.getPack(), currentTime);
 	}
 
 	private void handleCongestionPacketIntoRouterEvent(Event event) {
-		// TODO Auto-generated method stub
+		double scheduleTime = random.generateExponential(1.0 / congestionPacketFrequency);
+		Event scheduleNextCongestionPack = new Event(EventType.CongestionPacketIntoRouter);
+		scheduleNextCongestionPack.setTime(currentTime + scheduleTime);
+		getEvents().add(scheduleNextCongestionPack);
+		
+		if(getSystem().getRouter().getBuffer().quantityOfRemainingPackets().equals(0)) {
+			Event sendPack = new Event(EventType.RouterSuccessfullySentPacket);
+			double packTransmission = packTransmission(SimulationProperties.getMSS());
+			sendPack.setTime(currentTime + packTransmission);
+			getEvents().add(sendPack);
+		}
+		
+		long numberOfCongestionPacks = Math.round(random.generateGeometric(1.0 / congestionPacketFrequency));
+		for(long i = 0 ; i < numberOfCongestionPacks ; i++)
+			getSystem().getRouter().receivePacket(new Pack(PackType.Congestion, 0), currentTime);
+	}
+	
+	public static void main(String[] args) {
+		Simulation simulador = new Simulation();
+		simulador.run();
+
+		System.out.println("VAZÃO MÉDIA POR CONEXÃO:");
+		for (int i = 0; i < simulador.statisticsPerTx.size(); i++) {
+			System.out.println("\tTx"
+					+ i
+					+ ":\t"
+					+ simulador.statisticsPerTx.get(i).estimateAverage()
+					+ " ± "
+					+ simulador.statisticsPerTx.get(i).getAverageConfidenceIntervalDistance(0.9));
+		}
+
+		System.out.println("Rodadas = "
+				+ simulador.statisticsPerTx.get(0).getQuantityOfSamples());
+
+		System.out.println("VAZÃO MÉDIA GRUPO 1:");
+		Statistics estimadorVazaoMediaGrupo1 = new Statistics();
+		int i = 0;
+		while (i < SimulationProperties.getQuantityOfG1()) {
+			estimadorVazaoMediaGrupo1
+					.addSample(simulador.statisticsPerTx.get(i)
+							.estimateAverage());
+			i++;
+		}
+		System.out.println("\t\t" + estimadorVazaoMediaGrupo1.estimateAverage() + "±"
+				+ estimadorVazaoMediaGrupo1.getAverageConfidenceIntervalDistance(0.9));
+
+		System.out.println("VAZÃO MÉDIA GRUPO 2:");
+		Statistics estimadorVazaoMediaGrupo2 = new Statistics();
+		while (i < simulador.getSystem().getTxs().size()) {
+			estimadorVazaoMediaGrupo2
+					.addSample(simulador.statisticsPerTx.get(i)
+							.estimateAverage());
+			i++;
+		}
+		System.out.println("\t\t" + estimadorVazaoMediaGrupo2.estimateAverage() + "±"
+				+ estimadorVazaoMediaGrupo2.getAverageConfidenceIntervalDistance(0.9));
+	}
+
+	public Sys getSystem() {
+		return system;
+	}
+
+	public PriorityQueue<Event> getEvents() {
+		return events;
 	}
 }

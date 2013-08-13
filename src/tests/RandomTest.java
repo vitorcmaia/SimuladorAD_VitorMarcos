@@ -10,18 +10,10 @@ public class RandomTest {
 	
 	@Test
 	public void checkSeeds() {
-		SimulatedRandom a = new SimulatedRandom();
-		SimulatedRandom b = new SimulatedRandom();
-		assertEquals(a.getSeed(), b.getSeed());
-	}
-	
-	@Test
-	public void changeSeed() {
-		SimulatedRandom a = new SimulatedRandom();
-		SimulatedRandom b = new SimulatedRandom();
-		assertEquals(a.getSeed(), b.getSeed());
-		
-		SimulatedRandom.changeSeed();
-		assertEquals(a.getSeed(), b.getSeed());
+		for(int i = 0 ; i < 100000 ; i++) {
+			SimulatedRandom a = new SimulatedRandom();
+			SimulatedRandom b = new SimulatedRandom();
+			assertTrue(a.getSeed().longValue() != b.getSeed().longValue());
+		}
 	}
 }

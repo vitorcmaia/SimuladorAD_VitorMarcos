@@ -75,7 +75,6 @@ public final class Router {
 		Pack nextPack = getBuffer().pop();		
 		if(nextPack.getType() != PackType.Congestion) // Tráfego de fundo se perde.
 			sack = Rxs.get(nextPack.getDestination()).receivePacket(nextPack);
-		
 		if(getBuffer().quantityOfRemainingPackets() == 0 && type == RouterType.RED) {
 			redAttributes.setIdleIntervalStart(removalTime);
 		}
