@@ -234,7 +234,7 @@ public class Tx {
 			if (duplicatedAcksCounter == 3) {
 				recalculateThreshold();
 				setFastRetransmit(true);
-				if (sack.getSequences() != null)
+				if (sack.getSequences() != null && sack.getSequences().size() != 0)
 					retransmitionWindow = sack.getSequences().get(sack.getSequences().size() - 1).get(1);
 				else
 					retransmitionWindow = nextPacketToSend;

@@ -2,6 +2,7 @@ package simulation;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.util.TreeMap;
 
 import enums.EventType;
 import enums.Group;
@@ -22,6 +23,14 @@ import network.Tx;
  * Responsável pelo loop de simulação.
  */
 public class Simulation {
+	//-------------------------------------------------------------------
+	// Dados armazenados para os cenários.
+	/**
+	 * Armazena o valor de Cwnd/MSS ao longo do tempo de simulação.
+	 */
+	private TreeMap<Double, Double> mapCurrentTimePerCwndMSS = new TreeMap<Double, Double>();
+	//-------------------------------------------------------------------
+	
 	/**
 	 *  Engloba todos os Tx e Rx do sistema, e também o roteador, cuja disciplina é passada por parâmetro.
 	 */
@@ -55,7 +64,7 @@ public class Simulation {
 	 * Cada conexão Tx-Rx terá suas estatísticas estimadas
 	 */
 	private ArrayList<Statistics> statisticsPerTx = new ArrayList<Statistics>();
-	
+
 	/**
 	 * Construtor. Seta valores iniciais e parâmetros iniciais.
 	 */
@@ -171,8 +180,11 @@ public class Simulation {
 			// Os dados desta fase são subtraídos das estatísticas finais.
 			TransientPhaseData transientPhaseData = transientPhase();
 			
-			for (int i = 0; i < SimulationProperties.getEventsInARow(); i++)
+			for (int i = 0; i < SimulationProperties.getEventsInARow(); i++) {
+				// Usado no cenário 1.
+				mapCurrentTimePerCwndMSS.put(currentTime, getSystem().getTxs().get(0).getCongestionWindow()/SimulationProperties.getMSS().doubleValue());
 				handleEvents();
+			}
 			
 			for(int i = 0 ; i < getSystem().getRxs().size() ; i++) {
 				double a = getSystem().getRxs().get(i).getNextExpectedByte() - transientPhaseData.getExpectedBytes().get(i);
@@ -390,5 +402,13 @@ public class Simulation {
 
 	public PriorityQueue<Event> getEvents() {
 		return events;
+	}
+
+	public TreeMap<Double, Double> getMapCurrentTimePerCwndMSS() {
+		return mapCurrentTimePerCwndMSS;
+	}
+	
+	public ArrayList<Statistics> getStatisticsPerTx() {
+		return statisticsPerTx;
 	}
 }
