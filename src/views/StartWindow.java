@@ -48,7 +48,7 @@ public class StartWindow extends JFrame {
 		menu.addSeparator();
 		
 		exit = new JMenuItem("Sair");
-		exit.setActionCommand("Exit");
+		exit.setActionCommand("Sair");
 		menu.add(exit);
 		
 		menuBar.setOpaque(true);

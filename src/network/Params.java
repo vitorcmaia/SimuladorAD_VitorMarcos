@@ -12,7 +12,7 @@ public class Params extends Properties {
 	
 	public final static long MSS = 1500L;
 	
-	// Intialize the recorded params on a file
+	// Initialize the recorded params on a file
 	public Params() throws IOException {
 		File fileParams = new File(pathParams);
 		fileParams.createNewFile();
@@ -66,7 +66,7 @@ public class Params extends Properties {
 		return this.getProperty("averageBackTraffic", "10");
 	}
 	
-	// Retorna a taxa média de pacotes por rajada
+	// Retorna a taxa média de pacotes por rajada do tráfego de fundo
 	public double getAverageBackTraffic() {
 		return Double.parseDouble(getAverageBackTrafficProperty());
 	}
@@ -86,6 +86,22 @@ public class Params extends Properties {
 	
 	public double getBufferSize() {
 		return Double.parseDouble(getBufferSizeProperty());
+	}
+	
+	public String getNumberStationsGroup1Property() {
+		return this.getProperty("numberStationsGroup1", "10");
+	}
+	
+	public double getNumberStationsGroup1() {
+		return Double.parseDouble(getNumberStationsGroup1Property());
+	}
+	
+	public String getNumberStationsGroup2Property() {
+		return this.getProperty("numberStationsGroup2", "10");
+	}
+	
+	public double getNumberStationsGroup2() {
+		return Double.parseDouble(getNumberStationsGroup2Property());
 	}
 	
 	public String getAckG1PropagationTimeProperty() {
