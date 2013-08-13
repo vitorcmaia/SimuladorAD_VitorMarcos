@@ -47,9 +47,13 @@ public class ParamsController implements ActionListener {
 				params.setProperty("numberStationsGroup2", defineParams.getNumberStationsGroup2().getText());
 				params.setProperty("ackG1PropagationTime", defineParams.getAckG1PropagationTime().getText());
 				params.setProperty("ackG2PropagationTime", defineParams.getAckG2PropagationTime().getText());
-			} /*catch (IOException e1) {
+				System.out.println("PASSOU");
+				
+				params.save();
+				defineParams.close();
+			} catch (IOException e1) {
 				e1.printStackTrace();
-			}*/ finally {
+			} finally {
 				System.out.println("Final da execução!");
 			}
 		}		
