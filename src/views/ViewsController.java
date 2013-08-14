@@ -14,6 +14,7 @@ public class ViewsController implements ActionListener {
 		
 		startWindow.getDefineParams().addActionListener(this);
 		startWindow.getRunSimulator().addActionListener(this);
+		startWindow.getCongestionWindow().addActionListener(this);
 	}
 
 	@Override
@@ -25,6 +26,8 @@ public class ViewsController implements ActionListener {
 				new ParamsController();
 			} else if ("RodarSimulador".equals(e.getActionCommand())) {
 				new RunSimulator();
+			} else if ("GerarGraficoCongestionWindow".equals(e.getActionCommand())) {
+				new CongestionWindowController();
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();

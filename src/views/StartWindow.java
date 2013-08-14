@@ -19,6 +19,7 @@ public class StartWindow extends JFrame {
 	private JMenuItem runSimulator;
 	private JMenuItem exit;
 	private JMenuItem defineParams; // Opção que permite definir os Dados da Simulação
+	private JMenuItem congestionWindow;
 	
 	public StartWindow() {
 		super("Trabalho de Simulação - Avaliação de Desempenho");
@@ -45,6 +46,10 @@ public class StartWindow extends JFrame {
 		runSimulator.setActionCommand("RodarSimulador");
 		menu.add(runSimulator);
 		
+		congestionWindow = new JMenuItem("Gerar Gráfico da Congestion Window");
+		congestionWindow.setActionCommand("GerarGraficoCongestionWindow");
+		menu.add(congestionWindow);
+		
 		menu.addSeparator();
 		
 		exit = new JMenuItem("Sair");
@@ -69,6 +74,10 @@ public class StartWindow extends JFrame {
 	
 	public JMenuItem getRunSimulator() {
 		return runSimulator;
+	}
+	
+	public JMenuItem getCongestionWindow() {
+		return congestionWindow;
 	}
 	
 	public JMenuItem getExit() {
