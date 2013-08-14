@@ -32,9 +32,17 @@ public class Scenarios {
 	//-------------------------------------
 	// Cenário 2, Tarefa 1:
 	// Vazão de todos os Tx, 10 no total.
-	private static ArrayList<TreeMap<Double, Double>> AllTxFlows_FIFO;
-	private static ArrayList<TreeMap<Double, Double>> AllTxFlows_RED;
+	private static ArrayList<TreeMap<Double, Double>> All10TxFlows_FIFO;
+	private static ArrayList<TreeMap<Double, Double>> All10TxFlows_RED;
+	//-------------------------------------
 	
+	// Cenário 2, Tarefa 1:
+	// Vazão de todos os Tx, 100 no total para cada grupo.
+	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG1_FIFO;
+	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG1_RED;
+	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG2_FIFO;
+	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG2_RED;
+	//-------------------------------------
 	
 	/**
 	 * Calcular o comportamento de CongestionWindow/MSS ao longo do tempo para
@@ -116,7 +124,9 @@ public class Scenarios {
 			FlowGroup2_RED = simulation.getFlowPerTx().get(0);
 	}
 
-	
+	/**
+	 * Obter vazão total do sistema, com 5 servidores de cada grupo.
+	 */
 	public static void Scenario2_Task1(RouterType type) {
 		// Defino que terá tráfego de fundo.
 		SimulationProperties.setWithCongestion(true);
@@ -138,9 +148,67 @@ public class Scenarios {
 		simulation.run();
 		
 		if(SimulationProperties.getRouterType().equals(RouterType.FIFO))
-			AllTxFlows_FIFO = simulation.getFlowPerTx();
+			All10TxFlows_FIFO = simulation.getFlowPerTx();
 		else
-			AllTxFlows_RED = simulation.getFlowPerTx();
+			All10TxFlows_RED = simulation.getFlowPerTx();
+	}
+	
+	/**
+	 * Obter a vazão de 100 servidores de Grupo 1.
+	 */
+	public static void Scenario3_Task1(RouterType type) {
+		// Defino que terá tráfego de fundo.
+		SimulationProperties.setWithCongestion(true);
+		// Mudo o valor do Cg para 5Mbps.
+		SimulationProperties.setCg((10E6)/2.0);
+		// Defino 100 conexões de G1 e nenhuma de G2.
+		SimulationProperties.setQuantityOfG1(100);
+		SimulationProperties.setQuantityOfG2(0);
+		// Defino 10 mil eventos na simulação, para que seja longa.
+		SimulationProperties.setEventsInARow(10000);
+		// Defino a política do roteador, de acordo com o parâmetor passado no método.
+		SimulationProperties.setRouterType(type);
+		// Pelo enunciado, seto com 1000ms.
+		SimulationProperties.setAssyncInterval(1000);
+		// Defini a fase transiente como 1/3 do número de eventos.
+		SimulationProperties.setTransientPhaseEvents(SimulationProperties.getEventsInARow()/3);
+		
+		Simulation simulation = new Simulation();
+		simulation.run();
+		
+		if(SimulationProperties.getRouterType().equals(RouterType.FIFO))
+			All100TxFlowsG1_FIFO = simulation.getFlowPerTx();
+		else
+			All100TxFlowsG1_RED = simulation.getFlowPerTx();
+	}
+	
+	/**
+	 * Obter a vazão de 100 servidores de Grupo 2.
+	 */
+	public static void Scenario3_Task2(RouterType type) {
+		// Defino que terá tráfego de fundo.
+		SimulationProperties.setWithCongestion(true);
+		// Mudo o valor do Cg para 5Mbps.
+		SimulationProperties.setCg((10E6)/2.0);
+		// Defino 100 conexões de G1 e nenhuma de G2.
+		SimulationProperties.setQuantityOfG1(0);
+		SimulationProperties.setQuantityOfG2(100);
+		// Defino 10 mil eventos na simulação, para que seja longa.
+		SimulationProperties.setEventsInARow(10000);
+		// Defino a política do roteador, de acordo com o parâmetor passado no método.
+		SimulationProperties.setRouterType(type);
+		// Pelo enunciado, seto com 1000ms.
+		SimulationProperties.setAssyncInterval(1000);
+		// Defini a fase transiente como 1/3 do número de eventos.
+		SimulationProperties.setTransientPhaseEvents(SimulationProperties.getEventsInARow()/3);
+		
+		Simulation simulation = new Simulation();
+		simulation.run();
+		
+		if(SimulationProperties.getRouterType().equals(RouterType.FIFO))
+			All100TxFlowsG2_FIFO = simulation.getFlowPerTx();
+		else
+			All100TxFlowsG2_RED = simulation.getFlowPerTx();
 	}
 	
 	public static void main(String[] args) {
@@ -148,40 +216,53 @@ public class Scenarios {
 		//Scenario1_Task1(RouterType.RED);
 		//Scenario1_Task2(RouterType.FIFO);
 		//Scenario1_Task2(RouterType.RED);
-		Scenario2_Task1(RouterType.FIFO);
-		Scenario2_Task1(RouterType.RED);
+		//Scenario2_Task1(RouterType.FIFO);
+		//Scenario2_Task1(RouterType.RED);
+		//Scenario3_Task1(RouterType.FIFO);
+		Scenario3_Task1(RouterType.RED);
+		//Scenario3_Task2(RouterType.FIFO);
+		//Scenario3_Task2(RouterType.RED);
 		
-		for(Entry<Double, Double> entry : ResultsGroup1_FIFO.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
 		
-		for(Entry<Double, Double> entry : ResultsGroup1_RED.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(Entry<Double, Double> entry : ResultsGroup2_FIFO.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(Entry<Double, Double> entry : ResultsGroup2_RED.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(Entry<Double, Double> entry : FlowGroup1_FIFO.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(Entry<Double, Double> entry : FlowGroup1_RED.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(Entry<Double, Double> entry : FlowGroup2_FIFO.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(Entry<Double, Double> entry : FlowGroup2_RED.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		
-		for(TreeMap<Double, Double> map : AllTxFlows_FIFO)
+//		for(Entry<Double, Double> entry : ResultsGroup1_FIFO.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : ResultsGroup1_RED.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : ResultsGroup2_FIFO.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : ResultsGroup2_RED.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : FlowGroup1_FIFO.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : FlowGroup1_RED.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : FlowGroup2_FIFO.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(Entry<Double, Double> entry : FlowGroup2_RED.entrySet())
+//			System.out.println(entry.getKey() + " => " + entry.getValue());
+//		
+//		for(TreeMap<Double, Double> map : All10TxFlows_FIFO)
+//			for(Entry<Double, Double> entry : map.entrySet())
+//				System.out.println(All10TxFlows_FIFO.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
+//		
+//		for(TreeMap<Double, Double> map : All10TxFlows_RED)
+//			for(Entry<Double, Double> entry : map.entrySet())
+//				System.out.println(All10TxFlows_RED.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
+		//---
+//		for(TreeMap<Double, Double> map : All100TxFlowsG1_FIFO)
+//			for(Entry<Double, Double> entry : map.entrySet())
+//				System.out.println(All100TxFlowsG1_FIFO.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
+//		
+		for(TreeMap<Double, Double> map : All100TxFlowsG1_RED)
 			for(Entry<Double, Double> entry : map.entrySet())
-				System.out.println(AllTxFlows_FIFO.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
-		
-		for(TreeMap<Double, Double> map : AllTxFlows_RED)
-			for(Entry<Double, Double> entry : map.entrySet())
-				System.out.println(AllTxFlows_RED.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
+				System.out.println(All100TxFlowsG1_RED.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
 	}
 
 }
