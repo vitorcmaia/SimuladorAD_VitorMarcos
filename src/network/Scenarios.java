@@ -23,15 +23,11 @@ public class Scenarios {
 	private static TreeMap<Double, Double> ResultsGroup2_RED;
 	//-------------------------------------
 	// Cenário 1, Tarefa 2:
-	// Média e distância média de IC para os grupos 1 e 2.
-	private static Double g1Average_FIFO;
-	private static Double g1IC_FIFO;
-	private static Double g2Average_FIFO;
-	private static Double g2IC_FIFO;
-	private static Double g1Average_RED;
-	private static Double g1IC_RED;
-	private static Double g2Average_RED;
-	private static Double g2IC_RED;
+	// Vazão de cada Tx, Tempo x PróximoByte/Tempo
+	private static TreeMap<Double, Double> FlowGroup1_FIFO;
+	private static TreeMap<Double, Double> FlowGroup2_FIFO;
+	private static TreeMap<Double, Double> FlowGroup1_RED;
+	private static TreeMap<Double, Double> FlowGroup2_RED;
 	//-------------------------------------
 	
 	/**
@@ -51,6 +47,8 @@ public class Scenarios {
 		SimulationProperties.setEventsInARow(100000);
 		// Defino a política do roteador, de acordo com o parâmetor passado no método.
 		SimulationProperties.setRouterType(type);
+		// Não é falado nada sobre início assíncrono, então setarei como zero.
+		SimulationProperties.setAssyncInterval(0);
 		
 		Simulation simulation = new Simulation();
 		simulation.run();
@@ -88,18 +86,16 @@ public class Scenarios {
 		SimulationProperties.setEventsInARow(100000);
 		// Defino a política do roteador, de acordo com o parâmetor passado no método.
 		SimulationProperties.setRouterType(type);
+		// Não é falado nada sobre início assíncrono, então setarei como zero.
+		SimulationProperties.setAssyncInterval(0);
 		
 		Simulation simulation = new Simulation();
 		simulation.run();
 		
-		if(SimulationProperties.getRouterType().equals(RouterType.FIFO)) {
-			g1Average_FIFO = simulation.getStatisticsPerTx().get(0).estimateAverage();
-			g1IC_FIFO  = simulation.getStatisticsPerTx().get(0).getAverageConfidenceIntervalDistance(0.9);
-		}
-		else {
-			g1Average_RED = simulation.getStatisticsPerTx().get(0).estimateAverage();
-			g1IC_RED  = simulation.getStatisticsPerTx().get(0).getAverageConfidenceIntervalDistance(0.9);
-		}
+		if(SimulationProperties.getRouterType().equals(RouterType.FIFO))
+			FlowGroup1_FIFO = simulation.getFlowPerTx().get(0);
+		else
+			FlowGroup1_RED = simulation.getFlowPerTx().get(0);
 		
 		// Defino uma conexão do Grupo 2 e nenhuma do grupo 1.
 		SimulationProperties.setQuantityOfG1(0);
@@ -108,14 +104,10 @@ public class Scenarios {
 		simulation = new Simulation();
 		simulation.run();
 		
-		if(SimulationProperties.getRouterType().equals(RouterType.FIFO)) {
-			g2Average_FIFO = simulation.getStatisticsPerTx().get(0).estimateAverage();
-			g2IC_FIFO  = simulation.getStatisticsPerTx().get(0).getAverageConfidenceIntervalDistance(0.9);
-		}
-		else {
-			g2Average_RED = simulation.getStatisticsPerTx().get(0).estimateAverage();
-			g2IC_RED  = simulation.getStatisticsPerTx().get(0).getAverageConfidenceIntervalDistance(0.9);
-		}
+		if(SimulationProperties.getRouterType().equals(RouterType.FIFO))
+			FlowGroup2_FIFO = simulation.getFlowPerTx().get(0);
+		else
+			FlowGroup2_RED = simulation.getFlowPerTx().get(0);
 	}
 	
 	public static void main(String[] args) {
@@ -136,10 +128,17 @@ public class Scenarios {
 		for(Entry<Double, Double> entry : ResultsGroup2_RED.entrySet())
 			System.out.println(entry.getKey() + " => " + entry.getValue());
 		
-		System.out.println(g1Average_FIFO + " " + g1IC_FIFO);
-		System.out.println(g1Average_RED + " " + g1IC_RED);
-		System.out.println(g2Average_FIFO + " " + g2IC_FIFO);
-		System.out.println(g2Average_RED + " " + g2IC_RED);
+		for(Entry<Double, Double> entry : FlowGroup1_FIFO.entrySet())
+			System.out.println(entry.getKey() + " => " + entry.getValue());
+		
+		for(Entry<Double, Double> entry : FlowGroup1_RED.entrySet())
+			System.out.println(entry.getKey() + " => " + entry.getValue());
+		
+		for(Entry<Double, Double> entry : FlowGroup2_FIFO.entrySet())
+			System.out.println(entry.getKey() + " => " + entry.getValue());
+		
+		for(Entry<Double, Double> entry : FlowGroup2_RED.entrySet())
+			System.out.println(entry.getKey() + " => " + entry.getValue());
 	}
 
 }
