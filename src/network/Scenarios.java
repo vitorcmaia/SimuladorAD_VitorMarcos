@@ -18,30 +18,30 @@ public class Scenarios {
 	//-------------------------------------
 	// Cenário 1, Tarefa 1:
 	// Armazenam dados no formato Tempo x Cwnd/MSS
-	private static TreeMap<Double, Double> ResultsGroup1_FIFO;
-	private static TreeMap<Double, Double> ResultsGroup2_FIFO;
-	private static TreeMap<Double, Double> ResultsGroup1_RED;
-	private static TreeMap<Double, Double> ResultsGroup2_RED;
+	public static TreeMap<Double, Double> ResultsGroup1_FIFO;
+	public static TreeMap<Double, Double> ResultsGroup2_FIFO;
+	public static TreeMap<Double, Double> ResultsGroup1_RED;
+	public static TreeMap<Double, Double> ResultsGroup2_RED;
 	//-------------------------------------
 	// Cenário 1, Tarefa 2:
 	// Vazão de cada Tx, Tempo x PróximoByte/Tempo
-	private static TreeMap<Double, Double> FlowGroup1_FIFO;
-	private static TreeMap<Double, Double> FlowGroup2_FIFO;
-	private static TreeMap<Double, Double> FlowGroup1_RED;
-	private static TreeMap<Double, Double> FlowGroup2_RED;
+	public static TreeMap<Double, Double> FlowGroup1_FIFO;
+	public static TreeMap<Double, Double> FlowGroup2_FIFO;
+	public static TreeMap<Double, Double> FlowGroup1_RED;
+	public static TreeMap<Double, Double> FlowGroup2_RED;
 	//-------------------------------------
 	// Cenário 2, Tarefa 1:
 	// Vazão de todos os Tx, 10 no total.
-	private static ArrayList<TreeMap<Double, Double>> All10TxFlows_FIFO;
-	private static ArrayList<TreeMap<Double, Double>> All10TxFlows_RED;
+	public static ArrayList<TreeMap<Double, Double>> All10TxFlows_FIFO;
+	public static ArrayList<TreeMap<Double, Double>> All10TxFlows_RED;
 	//-------------------------------------
 	
 	// Cenário 2, Tarefa 1:
 	// Vazão de todos os Tx, 100 no total para cada grupo.
-	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG1_FIFO;
-	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG1_RED;
-	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG2_FIFO;
-	private static ArrayList<TreeMap<Double, Double>> All100TxFlowsG2_RED;
+	public static ArrayList<TreeMap<Double, Double>> All100TxFlowsG1_FIFO;
+	public static ArrayList<TreeMap<Double, Double>> All100TxFlowsG1_RED;
+	public static ArrayList<TreeMap<Double, Double>> All100TxFlowsG2_FIFO;
+	public static ArrayList<TreeMap<Double, Double>> All100TxFlowsG2_RED;
 	//-------------------------------------
 	
 	/**

@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
+import enums.RouterType;
+
+import network.Scenarios;
+
 import simulation.Simulation;
 
 public class CongestionWindowController {
@@ -12,9 +16,9 @@ public class CongestionWindowController {
 	private Simulation simulation;
 	
 	public CongestionWindowController() throws IOException {
-		this.simulation = new Simulation();
+		Scenarios.Scenario1_Task1(RouterType.RED);
 		
-		congestionWindowWindow = new CongestionWindowWindow(simulation.getMapCurrentTimePerCwndMSS());
+		congestionWindowWindow = new CongestionWindowWindow(Scenarios.ResultsGroup2_RED);
 	}
 	
 	public CongestionWindowWindow getCongestionWindowWindow() {
