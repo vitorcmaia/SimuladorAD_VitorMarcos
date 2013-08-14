@@ -29,8 +29,13 @@ public class Simulation {
 	 * Armazena o valor de Cwnd/MSS ao longo do tempo de simulação.
 	 */
 	private TreeMap<Double, Double> mapCurrentTimePerCwndMSS = new TreeMap<Double, Double>();
-	//-------------------------------------------------------------------
 	
+	/**
+	 * Armazena (próximo byte esperado)/tempo x tempo para cada TX. 
+	 */
+	private ArrayList<TreeMap<Double, Double>> flowPerTx = new ArrayList<TreeMap<Double,Double>>();
+	//-------------------------------------------------------------------
+
 	/**
 	 *  Engloba todos os Tx e Rx do sistema, e também o roteador, cuja disciplina é passada por parâmetro.
 	 */
@@ -72,8 +77,10 @@ public class Simulation {
 		random  = new SimulatedRandom();
 		
 		for(int i = 0 ; i < SimulationProperties.getQuantityOfG1() +
-				            SimulationProperties.getQuantityOfG2() ; i++)
+				            SimulationProperties.getQuantityOfG2() ; i++) {
 			statisticsPerTx.add(new Statistics());
+			flowPerTx.add(new TreeMap<Double,Double>());
+		}
 	}
 	
 	/**
@@ -132,7 +139,7 @@ public class Simulation {
 		// Prepara os servidores para transmissão de Tx-Rx.
 		for(Tx tx : getSystem().getTxs()) {
 			double propagationDelay = setPropagationDelay(tx);
-			double randTime = random.generateDouble() * 150; // Fator aleatório além da propagação e da transmissão.
+			double randTime = random.generateDouble() * SimulationProperties.getAssyncInterval(); // Fator aleatório além da propagação e da transmissão.
 			
 			Event packSent = new Event(EventType.TxPacketHeadsToRouter); // Evento "Pacote sair do Tx"
 			packSent.setTime(randTime + transmissionTime);
@@ -183,6 +190,8 @@ public class Simulation {
 			for (int i = 0; i < SimulationProperties.getEventsInARow(); i++) {
 				// Usado no cenário 1.
 				mapCurrentTimePerCwndMSS.put(currentTime, getSystem().getTxs().get(0).getCongestionWindow()/SimulationProperties.getMSS().doubleValue());
+				// Armazena dados de vazão ao longo do tempo, para cada Tx.
+				populateFlowPerTx();
 				handleEvents();
 			}
 			
@@ -194,6 +203,12 @@ public class Simulation {
 		}
 	}
 	
+	private void populateFlowPerTx() {
+		for(int i = 0 ; i < flowPerTx.size() ; i++) {
+			flowPerTx.get(i).put(currentTime, system.getRxs().get(i).getNextExpectedByte()/currentTime);
+		}
+	}
+
 	/**
 	 * Retira o próximo evento da fila de prioridades, e o trata.
 	 */
@@ -410,5 +425,9 @@ public class Simulation {
 	
 	public ArrayList<Statistics> getStatisticsPerTx() {
 		return statisticsPerTx;
+	}
+	
+	public ArrayList<TreeMap<Double, Double>> getFlowPerTx() {
+		return flowPerTx;
 	}
 }

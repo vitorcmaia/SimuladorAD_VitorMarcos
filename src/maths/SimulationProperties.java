@@ -15,6 +15,13 @@ public final class SimulationProperties {
 	private static Integer quantityOfG1 = 10;
 	
 	/**
+	 * O intervalo aleatório do início de uma sessão deve ser
+	 * um tempo dentro deste intervalo, em milissegundos.
+	 * Definido no Cenário 2 como 100 e no cenário 3 como 1000.
+	 */
+	private static double assyncInterval = 100;
+	
+	/**
 	 * Quantidade de sess�es TCP de grupo 2.
 	 */
 	private static Integer quantityOfG2 = 10;
@@ -191,5 +198,13 @@ public final class SimulationProperties {
 
 	public static void setTransientPhaseEvents(int transientPhaseEvents) {
 		SimulationProperties.transientPhaseEvents = transientPhaseEvents;
+	}
+
+	public static double getAssyncInterval() {
+		return assyncInterval;
+	}
+
+	public static void setAssyncInterval(double assyncInterval) {
+		SimulationProperties.assyncInterval = assyncInterval;
 	}
 }
