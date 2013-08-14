@@ -4,5 +4,9 @@
 	<classpathentry kind="src" path="libstats"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="jcommon-1.0.18.jar"/>
+	<classpathentry kind="lib" path="jfreechart-1.0.15-experimental.jar"/>
+	<classpathentry kind="lib" path="jfreechart-1.0.15-swt.jar"/>
+	<classpathentry kind="lib" path="jfreechart-1.0.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
