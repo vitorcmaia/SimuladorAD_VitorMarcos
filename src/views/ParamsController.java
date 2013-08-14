@@ -47,7 +47,6 @@ public class ParamsController implements ActionListener {
 				params.setProperty("numberStationsGroup2", defineParams.getNumberStationsGroup2().getText());
 				params.setProperty("ackG1PropagationTime", defineParams.getAckG1PropagationTime().getText());
 				params.setProperty("ackG2PropagationTime", defineParams.getAckG2PropagationTime().getText());
-				System.out.println("PASSOU");
 				
 				params.save();
 				defineParams.close();
@@ -56,7 +55,9 @@ public class ParamsController implements ActionListener {
 			} finally {
 				System.out.println("Final da execução!");
 			}
-		}		
+		} else {
+			System.out.println("DEU MERDA");
+		}
 	}
 	
 	public static void main(String args[]) throws IOException {

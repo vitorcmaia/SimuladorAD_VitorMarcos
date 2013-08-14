@@ -1,0 +1,13 @@
+#Mudança de Parâmetros
+#Tue Aug 13 00:15:21 BRT 2013
+cg=10E6
+tp2=50
+tp1=100
+bufferSize=40
+timeBetweenSquall=24
+numberStationsGroup2=10
+numberStationsGroup1=10
+averageBackTraffic=10
+cs=1111
+ackG1PropagationTime=100
+ackG2PropagationTime=50

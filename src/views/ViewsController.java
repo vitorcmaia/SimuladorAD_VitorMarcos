@@ -7,6 +7,7 @@ import java.io.IOException;
 public class ViewsController implements ActionListener {
 	
 	private StartWindow startWindow;
+	//private ParamsController paramsController;
 	
 	public ViewsController() {
 		startWindow = new StartWindow();
@@ -21,13 +22,13 @@ public class ViewsController implements ActionListener {
 			if ("Sair".equals(e.getActionCommand())) {
 				startWindow.close();
 			} else if ("DefinirDados".equals(e.getActionCommand())) {
-				new DefineParams();
+				new ParamsController();
 			} else if ("RodarSimulador".equals(e.getActionCommand())) {
 				new RunSimulator();
 			}
-		} /*catch (IOException e1) {
+		} catch (IOException e1) {
 			e1.printStackTrace();
-		}*/  finally {
+		}  finally {
 			System.out.println("Final da execução!");
 		}
 	}
