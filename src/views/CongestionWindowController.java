@@ -29,5 +29,4 @@ public class CongestionWindowController {
 		CongestionWindowController controller = new CongestionWindowController();
 		controller.getCongestionWindowWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-
 }

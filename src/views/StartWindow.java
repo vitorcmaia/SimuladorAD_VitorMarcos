@@ -20,6 +20,7 @@ public class StartWindow extends JFrame {
 	private JMenuItem exit;
 	private JMenuItem defineParams; // Opção que permite definir os Dados da Simulação
 	private JMenuItem congestionWindow;
+	private JMenuItem flowEventWindow;
 	
 	public StartWindow() {
 		super("Trabalho de Simulação - Avaliação de Desempenho");
@@ -50,6 +51,10 @@ public class StartWindow extends JFrame {
 		congestionWindow.setActionCommand("GerarGraficoCongestionWindow");
 		menu.add(congestionWindow);
 		
+		flowEventWindow = new JMenuItem("Gerar Gráfico Vazão x Número de Eventos");
+		flowEventWindow.setActionCommand("GerarGraficoVazaoEventos");
+		menu.add(flowEventWindow);
+		
 		menu.addSeparator();
 		
 		exit = new JMenuItem("Sair");
@@ -78,6 +83,10 @@ public class StartWindow extends JFrame {
 	
 	public JMenuItem getCongestionWindow() {
 		return congestionWindow;
+	}
+	
+	public JMenuItem getFlowEventWindow() {
+		return flowEventWindow;
 	}
 	
 	public JMenuItem getExit() {
