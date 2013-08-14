@@ -1,6 +1,7 @@
 package network;
 
 import java.util.Map.Entry;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 import enums.RouterType;
@@ -29,6 +30,11 @@ public class Scenarios {
 	private static TreeMap<Double, Double> FlowGroup1_RED;
 	private static TreeMap<Double, Double> FlowGroup2_RED;
 	//-------------------------------------
+	// Cenário 2, Tarefa 1:
+	// Vazão de todos os Tx, 10 no total.
+	private static ArrayList<TreeMap<Double, Double>> AllTxFlows_FIFO;
+	private static ArrayList<TreeMap<Double, Double>> AllTxFlows_RED;
+	
 	
 	/**
 	 * Calcular o comportamento de CongestionWindow/MSS ao longo do tempo para
@@ -109,12 +115,41 @@ public class Scenarios {
 		else
 			FlowGroup2_RED = simulation.getFlowPerTx().get(0);
 	}
+
+	
+	public static void Scenario2_Task1(RouterType type) {
+		// Defino que terá tráfego de fundo.
+		SimulationProperties.setWithCongestion(true);
+		// Mudo o valor do Cg para 5Mbps.
+		SimulationProperties.setCg((10E6)/2.0);
+		// Defino 5 conexões de cada grupo.
+		SimulationProperties.setQuantityOfG1(5);
+		SimulationProperties.setQuantityOfG2(5);
+		// Defino 10 mil eventos na simulação, para que seja longa.
+		SimulationProperties.setEventsInARow(1000);
+		// Defino a política do roteador, de acordo com o parâmetor passado no método.
+		SimulationProperties.setRouterType(type);
+		// Pelo enunciado, seto com 100ms.
+		SimulationProperties.setAssyncInterval(100);
+		// Defini a fase transiente como 1/3 do número de eventos.
+		SimulationProperties.setTransientPhaseEvents(SimulationProperties.getEventsInARow()/3);
+		
+		Simulation simulation = new Simulation();
+		simulation.run();
+		
+		if(SimulationProperties.getRouterType().equals(RouterType.FIFO))
+			AllTxFlows_FIFO = simulation.getFlowPerTx();
+		else
+			AllTxFlows_RED = simulation.getFlowPerTx();
+	}
 	
 	public static void main(String[] args) {
-		Scenario1_Task1(RouterType.FIFO);
-		Scenario1_Task1(RouterType.RED);
-		Scenario1_Task2(RouterType.FIFO);
-		Scenario1_Task2(RouterType.RED);
+		//Scenario1_Task1(RouterType.FIFO);
+		//Scenario1_Task1(RouterType.RED);
+		//Scenario1_Task2(RouterType.FIFO);
+		//Scenario1_Task2(RouterType.RED);
+		Scenario2_Task1(RouterType.FIFO);
+		Scenario2_Task1(RouterType.RED);
 		
 		for(Entry<Double, Double> entry : ResultsGroup1_FIFO.entrySet())
 			System.out.println(entry.getKey() + " => " + entry.getValue());
@@ -139,6 +174,14 @@ public class Scenarios {
 		
 		for(Entry<Double, Double> entry : FlowGroup2_RED.entrySet())
 			System.out.println(entry.getKey() + " => " + entry.getValue());
+		
+		for(TreeMap<Double, Double> map : AllTxFlows_FIFO)
+			for(Entry<Double, Double> entry : map.entrySet())
+				System.out.println(AllTxFlows_FIFO.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
+		
+		for(TreeMap<Double, Double> map : AllTxFlows_RED)
+			for(Entry<Double, Double> entry : map.entrySet())
+				System.out.println(AllTxFlows_RED.indexOf(map) + ": " + entry.getKey() + " => " + entry.getValue());
 	}
 
 }
