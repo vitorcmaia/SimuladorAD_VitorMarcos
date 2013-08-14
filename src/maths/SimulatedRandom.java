@@ -8,17 +8,15 @@ import java.util.Random;
 public final class SimulatedRandom {
 	
 	/**
-	 * Armazena o último seed.
+	 * Armazena o seed.
 	 */
-	private static Long seed = null;
+	private Long seed = null;
 	
 	/**
 	 * Construtor. Seta apenas um seed para toda a rodada de simulação.
 	 */
 	public SimulatedRandom() {
-		// Durante toda a simulação, haverá apenas um seed.
-		if(SimulatedRandom.seed == null)
-			SimulatedRandom.seed = new Random().nextLong();
+		seed = new Random().nextLong();
 	}
 	
 	/**
@@ -62,12 +60,5 @@ public final class SimulatedRandom {
 	 */
 	public Long getSeed() {
 		return seed;
-	}
-	
-	/**
-	 * Caso seja necessário mudar o seed das instâncias.
-	 */
-	public static void changeSeed() {
-		SimulatedRandom.seed = new Random().nextLong();
 	}
 }

@@ -2,7 +2,12 @@ package network;
 
 import enums.EventType;
 
-public class Event {
+/**
+ * Eventos de simulação. O comportamento varia de acordo com o valor do atributo Type.
+ * Implementa Comparable, pois a fila de prioridades de eventos da simulação depende
+ * do método compareTo().
+ */
+public class Event implements Comparable<Event> {
 	/**
 	 * Identificador do evento.
 	 */
@@ -26,6 +31,11 @@ public class Event {
 	 * Pacote em transmissão de um Tx para o roteador.
 	 */
 	private Pack pack;
+	
+	/**
+	 * Sack enviado do Rx para o Tx correspondente.
+	 */
+	private SACK sack;
 	//-------------------------------------------------------------
 	
 	/**
@@ -74,5 +84,20 @@ public class Event {
 
 	public void setPack(Pack pack) {
 		this.pack = pack;
+	}
+
+	public SACK getSack() {
+		return sack;
+	}
+
+	public void setSack(SACK sack) {
+		this.sack = sack;
+	}
+
+	@Override
+	public int compareTo(Event event) {
+		if(getTime() < event.getTime()) return -1;
+		else if(getTime() > event.getTime()) return 1;
+		else return 0; // Caso ocorram no mesmo tempo.
 	}
 }

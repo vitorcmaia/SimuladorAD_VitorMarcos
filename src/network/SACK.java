@@ -2,6 +2,8 @@ package network;
 
 import java.util.ArrayList;
 
+import enums.EventType;
+
 public class SACK {
 	
 	/**
@@ -15,6 +17,11 @@ public class SACK {
 	private Integer destination;
 	
 	private double originalPackSendingTime;
+	
+	/**
+	 * Possibilidade de timeout.
+	 */
+	private Event timeout;
 	
 	/**
 	 * Sequencias recebidas corretamente, que permitem inferir os pacotes perdidos.
@@ -105,5 +112,19 @@ public class SACK {
 		}
 		
 		return true;
+	}
+	
+	public Event getTimeout() {
+		return timeout;
+	}
+	
+	/**
+	 * Seta o evento de timeout do sack.
+	 * @param timeout Evento de Timeout.
+	 */
+	public void setTimeout(Event timeout) {
+		if(!timeout.getType().equals(EventType.Timeout))
+			throw new RuntimeException();
+		this.timeout = timeout;
 	}
 }

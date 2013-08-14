@@ -14,27 +14,27 @@ public final class Statistics {
 	 * mantém-se este somatório parcial delas, e então o cálculo da média é simplesmente
 	 * este valor dividido pelo número de amostras, sem necessidade de loops.
 	 */
-	private Double partialSumOfSamples = 0.0;
+	private double partialSumOfSamples = 0.0;
 	
 	/**
 	 * É possível calcular a variância incrementalmente. A cada amostra adicionada,
 	 * calcula-se este somatório dos quadrados das amostras, e este valor é usado
 	 * para calcular o valor da variância sem loops.
 	 */
-	private Double partialSquareOfSamples = 0.0;
+	private double partialSquareOfSamples = 0.0;
 	
 	/**
 	 * Armazena a quantidade de amostras. Não guarda as amostras em si, pois estes valores
 	 * são irrelevante separados. A intenção do algoritmo é não guardar vetor aqui, para
 	 * não sobrecarregar a memória.
 	 */
-	private Integer quantityOfSamples = 0;
+	private int quantityOfSamples = 0;
 	
 	/**
 	 * Informa a quantidade de amostras.
 	 * @return Quantidade de amostras.
 	 */
-	public Integer getQuantityOfSamples() {
+	public int getQuantityOfSamples() {
 		return quantityOfSamples;
 	}
 	
@@ -106,7 +106,6 @@ public final class Statistics {
 	 * @throws RuntimeException Caso existam menos de duas amostras. 
 	 */
 	public double getAverageConfidenceIntervalDistance(Double confidence) throws RuntimeException {
-		
 		if(getQuantityOfSamples() == 0 || getQuantityOfSamples() == 1)
 			throw new RuntimeException();
 		
