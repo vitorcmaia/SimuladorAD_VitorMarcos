@@ -15,16 +15,16 @@ public final class SimulationProperties {
 	private static Integer quantityOfG1 = 10;
 	
 	/**
-	 * O intervalo aleatório do início de uma sessão deve ser
+	 * Quantidade de sess�es TCP de grupo 2.
+	 */
+	private static Integer quantityOfG2 = 10;
+	
+	/**
+	 * O tempo aleatório do início de uma sessão deve ser
 	 * um tempo dentro deste intervalo, em milissegundos.
 	 * Definido no Cenário 2 como 100 e no cenário 3 como 1000.
 	 */
 	private static double assyncInterval = 100;
-	
-	/**
-	 * Quantidade de sess�es TCP de grupo 2.
-	 */
-	private static Integer quantityOfG2 = 10;
 	
 	/**
 	 * Taxa do enlace de saída do gargalo em bps.
@@ -51,7 +51,7 @@ public final class SimulationProperties {
 	private static Integer AckG2PropagationTime = 50;
 	
 	/**
-	 * Tamanho padr�o de um pacote.
+	 * Tamanho padrão de um pacote.
 	 */
 	private static Long MSS = 1500L;
 	

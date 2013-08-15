@@ -18,7 +18,7 @@ public class CongestionWindowController {
 	public CongestionWindowController() throws IOException {
 		Scenarios.Scenario1_Task1(RouterType.RED);
 		
-		congestionWindowWindow = new CongestionWindowWindow(Scenarios.ResultsGroup2_RED);
+		congestionWindowWindow = new CongestionWindowWindow(Scenarios.ResultsGroup1_RED);
 	}
 	
 	public CongestionWindowWindow getCongestionWindowWindow() {
