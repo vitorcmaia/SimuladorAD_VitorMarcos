@@ -5,8 +5,6 @@ import maths.Statistics;
 
 import org.junit.Test;
 
-import enums.ICBound;
-
 
 public class StatisticsTest {
 	
@@ -122,31 +120,15 @@ public class StatisticsTest {
 	@Test (expected = RuntimeException.class)
 	public void confidenceIntervalWithNoSamples() {
 		Statistics statistics = new Statistics();
-		statistics.ConfidenceIntervalDistance(0.90, ICBound.Lower);
+		statistics.getAverageConfidenceIntervalDistance(0.9);
 	}
 	
 	@Test (expected = RuntimeException.class)
 	public void confidenceIntervalWithOneSample() {
 		Statistics statistics = new Statistics();
 		statistics.addSample(35.8);
-		statistics.ConfidenceIntervalDistance(0.90, ICBound.Lower);
+		statistics.getAverageConfidenceIntervalDistance(0.9);
 	}
-	
-	@Test
-	public void confidenceIntervalWithFiveSamples() {
-		Statistics statistics = new Statistics();
-		
-		statistics.addSample(35.8);
-		statistics.addSample(40.1);
-		statistics.addSample(98.9);
-		statistics.addSample(14.7);
-		statistics.addSample(59.3);
-		
-		Double dist1 = statistics.estimateAverage() - statistics.ConfidenceIntervalDistance(0.98, ICBound.Lower);
-		Double dist2 = statistics.ConfidenceIntervalDistance(0.98, ICBound.Upper) - statistics.estimateAverage();
-		assertEquals(dist1, dist2, 0.0001);
-	}
-	
 }
 
 

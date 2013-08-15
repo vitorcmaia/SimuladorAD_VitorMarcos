@@ -1,6 +1,5 @@
 package maths;
 
-import enums.ICBound;
 import umontreal.iro.lecuyer.probdist.StudentDist;
 
 /**
@@ -82,24 +81,6 @@ public final class Statistics {
 	}
 	
 	/**
-	 * Calcula limite superior ou inferior do intervalo de confiança, dependendo do parâmetro passado.
-	 * @param confidence Confiança desejada.
-	 * @param bound Limite, pode ser Upper ou Lower
-	 * @return O valor do limite desejado do Intervalo de Confiança.
-	 */
-	public Double ConfidenceIntervalDistance(Double confidence, ICBound bound) {
-		
-		switch(bound) {
-			case Lower:
-				return estimateAverage() - getAverageConfidenceIntervalDistance(confidence);
-			case Upper:
-				return estimateAverage() + getAverageConfidenceIntervalDistance(confidence);
-			default:
-				return Double.NaN; // Nunca vai chegar aqui.
-		}
-	}
-	
-	/**
 	 * Calcula a distância entre a média e um dos limites. 
 	 * @param confidence Confiança desejada.
 	 * @return A distância entre a média e os limites.
@@ -110,7 +91,7 @@ public final class Statistics {
 			throw new RuntimeException();
 		
 		Double a = 1 - confidence;
-		// Uso uma biblioteca externa, para não implementar F(-1).
+		// Uso uma biblioteca externa.
 		Double p = StudentDist.inverseF(getQuantityOfSamples() - 1, 1 - a / 2);
 		
 		return p * Math.sqrt(estimateVariance() / getQuantityOfSamples());

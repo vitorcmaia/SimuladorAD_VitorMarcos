@@ -21,34 +21,32 @@ public class Tx {
 	private Group group;
 	
 	/**
+	 * Matriz de pacotes recebidos do Rx, que permite inferir quais pacotes não chegaram.
+	 */
+	private ArrayList<ArrayList<Long>> receivedSequencesFromRx = null;
+	
+	/**
 	 * Se algum pacote está em transmissão.
 	 */
 	private boolean isTransmiting = false;
 	
 	/**
 	 * Indica se o TxTCP está em estado de Fast Retransmit.
+	 * Caso a confirmação de chegada de um pacote não ocorra
+	 * 3 ocorrências de Sack, inicia-se o estado de fast-retransmit,
+	 * para reenviar o provável pacote perdido.
 	 */
 	private boolean isFastRetransmit = false;
-	
-	/**
-	 * Pacotes cuja entrega não aconteceu.
-	 */
-	private ArrayList<Pack> notDeliveredPacks = new ArrayList<Pack>();
-	
-	/**
-	 * Matriz de pacotes recebidos do Rx, que permite inferir quais pacotes não chegaram.
-	 */
-	private ArrayList<ArrayList<Long>> receivedSequencesFromRx = null;
-	
-	/**
-	 * Atraso de transmissão.
-	 */
-	private double rtt = 0;
 	
 	/**
 	 * Desvio médio do rtt.
 	 */
 	private double RttDeviation = 0;
+	
+	/**
+	 * Atraso de transmissão.
+	 */
+	private double rtt = 0;
 	
 	/**
 	 * Janela de congestionamento.
@@ -139,27 +137,30 @@ public class Tx {
 			pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
 			nextPacketToSend += SimulationProperties.getMSS();
 			return pack;
+		} else
+			return handleLostPacket(pack);
+	}
+
+	private Pack handleLostPacket(Pack pack) {
+		if (receivedSequencesFromRx.get(receivedSequencesFromRx.size() - 1).get(1) <= nextPacketToSend) {
+			pack.setStartingByte(nextPacketToSend);
+			pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
+			nextPacketToSend += SimulationProperties.getMSS();
+			return pack;
 		} else {
-			if (receivedSequencesFromRx.get(receivedSequencesFromRx.size() - 1).get(1) <= nextPacketToSend) {
-				pack.setStartingByte(nextPacketToSend);
-				pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
-				nextPacketToSend += SimulationProperties.getMSS();
-				return pack;
-			} else {
-				for(ArrayList<Long> pair : receivedSequencesFromRx) {
-					if (nextPacketToSend >= pair.get(0) && nextPacketToSend <= pair.get(1)) {
-						nextPacketToSend = pair.get(1);
-						pack.setStartingByte(nextPacketToSend);
-						pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
-						nextPacketToSend += SimulationProperties.getMSS();
-						return pack;
-					}
+			for(ArrayList<Long> pair : receivedSequencesFromRx) {
+				if (nextPacketToSend >= pair.get(0) && nextPacketToSend <= pair.get(1)) {
+					nextPacketToSend = pair.get(1);
+					pack.setStartingByte(nextPacketToSend);
+					pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
+					nextPacketToSend += SimulationProperties.getMSS();
+					return pack;
 				}
-				pack.setStartingByte(nextPacketToSend);
-				pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
-				nextPacketToSend += SimulationProperties.getMSS();
-				return pack;
 			}
+			pack.setStartingByte(nextPacketToSend);
+			pack.setEndingByte(nextPacketToSend + SimulationProperties.getMSS() - 1);
+			nextPacketToSend += SimulationProperties.getMSS();
+			return pack;
 		}
 	}
 
@@ -169,7 +170,7 @@ public class Tx {
 	 * @param receiveTime Tempo de recebimento.
 	 */
 	public void receiveSack(SACK sack, double receiveTime) {
-		updateRTT(sack.getOriginalPackSendingTime(), receiveTime);
+		updateRTT(sack.getStarterSendingTime(), receiveTime);
 		setReceivedSequencesFromRx(sack.getSequences());
 		if(fastRetransmitIsOn())
 			fastRetransmitActions(sack, receiveTime);
@@ -291,7 +292,12 @@ public class Tx {
 	public void setTransmiting(boolean isTransmiting) {
 		this.isTransmiting = isTransmiting;
 	}
-
+	
+	/**
+	 * Pacotes cuja entrega não aconteceu. São usados diretamente no contexto da simulação.
+	 */
+	private ArrayList<Pack> notDeliveredPacks = new ArrayList<Pack>();
+	
 	public ArrayList<Pack> getNotDeliveredPacks() {
 		return notDeliveredPacks;
 	}

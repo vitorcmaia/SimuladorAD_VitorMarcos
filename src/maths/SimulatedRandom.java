@@ -20,19 +20,13 @@ public final class SimulatedRandom {
 	}
 	
 	/**
-	 * Gera um inteiro aleatório menor do que o limite do tipo int.
+	 * Gera um numero com distribuição geométrica, dada uma probabilidade Bernoulli de sucesso.
+	 * Este número é arredondado para inteiro, pois o resultado é discreto.
+	 * @param p Probabilidade de sucesso.
 	 * @return O número gerado.
 	 */
-	public Integer generateInteger() {
-		return new Random(seed).nextInt();
-	}
-	
-	/**
-	 * Gera um ponto flutuante aleatório entre 0 e 1.
-	 * @return O número gerado.
-	 */
-	public Double generateDouble() {
-		return new Random(seed).nextDouble();
+	public double generateGeometric(double p) {
+		return Math.ceil( Math.log(1 - generateDouble()) / Math.log(1 - p) );
 	}
 	
 	/**
@@ -45,15 +39,13 @@ public final class SimulatedRandom {
 	}
 	
 	/**
-	 * Gera um numero com distribuição geométrica, dada uma probabilidade Bernoulli de sucesso.
-	 * Este número é arredondado para inteiro, pois o resultado é discreto.
-	 * @param p Probabilidade de sucesso.
+	 * Gera um ponto flutuante aleatório entre 0 e 1.
 	 * @return O número gerado.
 	 */
-	public double generateGeometric(double p) {
-		return Math.ceil( Math.log(1 - generateDouble()) / Math.log(1 - p) );
+	public Double generateDouble() {
+		return new Random(seed).nextDouble();
 	}
-
+	
 	/**
 	 * Informa o último seed gerado.
 	 * @return O seed da última inst�ncia.

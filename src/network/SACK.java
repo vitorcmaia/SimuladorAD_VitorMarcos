@@ -16,8 +16,6 @@ public class SACK {
 	 */
 	private Integer destination;
 	
-	private double originalPackSendingTime;
-	
 	/**
 	 * Possibilidade de timeout.
 	 */
@@ -59,13 +57,15 @@ public class SACK {
 	public void setSequences(ArrayList<ArrayList<Long>> sequences) {
 		this.sequences = sequences;
 	}
-
-	public double getOriginalPackSendingTime() {
-		return originalPackSendingTime;
+	
+	private double starterSendingTime;
+	
+	public double getStarterSendingTime() {
+		return starterSendingTime;
 	}
 
-	public void setOriginalPackSendingTime(double originalPackSendingTime) {
-		this.originalPackSendingTime = originalPackSendingTime;
+	public void setStarterSendingTime(double originalPackSendingTime) {
+		this.starterSendingTime = originalPackSendingTime;
 	}
 	
 	/**

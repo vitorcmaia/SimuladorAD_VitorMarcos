@@ -24,7 +24,7 @@ public final class SimulationProperties {
 	 * um tempo dentro deste intervalo, em milissegundos.
 	 * Definido no Cenário 2 como 100 e no cenário 3 como 1000.
 	 */
-	private static double assyncInterval = 100;
+	private static double assyncInterval = 0;
 	
 	/**
 	 * Taxa do enlace de saída do gargalo em bps.
@@ -46,8 +46,14 @@ public final class SimulationProperties {
 	 */
 	private static Integer TP2 = 50;
 	
+	/**
+	 * Atraso de propagação do ACK para o grupo 1.
+	 */
 	private static Integer AckG1PropagationTime = 100;
 	
+	/**
+	 * Atraso de propagação do ACK para o grupo 2.
+	 */
 	private static Integer AckG2PropagationTime = 50;
 	
 	/**

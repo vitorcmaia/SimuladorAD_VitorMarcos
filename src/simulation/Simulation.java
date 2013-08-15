@@ -139,7 +139,9 @@ public class Simulation {
 		// Prepara os servidores para transmissão de Tx-Rx.
 		for(Tx tx : getSystem().getTxs()) {
 			double propagationDelay = setPropagationDelay(tx);
-			double randTime = random.generateDouble() * SimulationProperties.getAssyncInterval(); // Fator aleatório além da propagação e da transmissão.
+			// Fator aleatório além da propagação e da transmissão.
+			// É zero por padrão, mas este intervalo muda nos cenários 2 e 3.
+			double randTime = random.generateDouble() * SimulationProperties.getAssyncInterval();
 			
 			Event packSent = new Event(EventType.TxPacketHeadsToRouter); // Evento "Pacote sair do Tx"
 			packSent.setTime(randTime + transmissionTime);
@@ -198,7 +200,7 @@ public class Simulation {
 			for(int i = 0 ; i < getSystem().getRxs().size() ; i++) {
 				double a = getSystem().getRxs().get(i).getNextExpectedByte() - transientPhaseData.getExpectedBytes().get(i);
 				double b = currentTime - transientPhaseData.getTransientPhaseEndingTime();
-				statisticsPerTx.get(i).addSample((a/b) * (8/1E-3));
+				statisticsPerTx.get(i).addSample((a*8)/(b*1E-3));
 			}
 		}
 	}
@@ -217,9 +219,6 @@ public class Simulation {
 		if(getEvents().isEmpty()) throw new RuntimeException();
 		// Evento é retornado e deletado da fila.
 		Event event = getEvents().poll();
-		
-		// Seria uma falha séria na lógica do simulador, mas é importante testar os tempos de início.
-		if(event.getTime() < currentTime) throw new RuntimeException(); 
 		
 		currentTime = event.getTime();
 		switch (event.getType()) {
@@ -249,6 +248,10 @@ public class Simulation {
 			if(tx.getNextPacketToSend() < tx.getOldestNotReceivedPacket() + tx.getCongestionWindow())
 				newTxPacketHeadsToRouter(tx);
 		
+		removeTimeouts(sack, tx);
+	}
+	
+	private void removeTimeouts(SACK sack, Tx tx) {
 		getEvents().remove(sack.getTimeout());
 		
 		ArrayList<Pack> packs = new ArrayList<Pack>();
@@ -368,47 +371,6 @@ public class Simulation {
 		long numberOfCongestionPacks = Math.round(random.generateGeometric(1.0 / congestionPacketFrequency));
 		for(long i = 0 ; i < numberOfCongestionPacks ; i++)
 			getSystem().getRouter().receivePacket(new Pack(PackType.Congestion, 0), currentTime);
-	}
-	
-	public static void main(String[] args) {
-		Simulation simulador = new Simulation();
-		simulador.run();
-
-		System.out.println("VAZÃO MÉDIA POR CONEXÃO:");
-		for (int i = 0; i < simulador.statisticsPerTx.size(); i++) {
-			System.out.println("\tTx"
-					+ i
-					+ ":\t"
-					+ simulador.statisticsPerTx.get(i).estimateAverage()
-					+ " ± "
-					+ simulador.statisticsPerTx.get(i).getAverageConfidenceIntervalDistance(0.9));
-		}
-
-		System.out.println("Rodadas = "
-				+ simulador.statisticsPerTx.get(0).getQuantityOfSamples());
-
-		System.out.println("VAZÃO MÉDIA GRUPO 1:");
-		Statistics estimadorVazaoMediaGrupo1 = new Statistics();
-		int i = 0;
-		while (i < SimulationProperties.getQuantityOfG1()) {
-			estimadorVazaoMediaGrupo1
-					.addSample(simulador.statisticsPerTx.get(i)
-							.estimateAverage());
-			i++;
-		}
-		System.out.println("\t\t" + estimadorVazaoMediaGrupo1.estimateAverage() + "±"
-				+ estimadorVazaoMediaGrupo1.getAverageConfidenceIntervalDistance(0.9));
-
-		System.out.println("VAZÃO MÉDIA GRUPO 2:");
-		Statistics estimadorVazaoMediaGrupo2 = new Statistics();
-		while (i < simulador.getSystem().getTxs().size()) {
-			estimadorVazaoMediaGrupo2
-					.addSample(simulador.statisticsPerTx.get(i)
-							.estimateAverage());
-			i++;
-		}
-		System.out.println("\t\t" + estimadorVazaoMediaGrupo2.estimateAverage() + "±"
-				+ estimadorVazaoMediaGrupo2.getAverageConfidenceIntervalDistance(0.9));
 	}
 
 	public Sys getSystem() {
